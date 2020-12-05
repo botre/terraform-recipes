@@ -36,7 +36,7 @@ locals {
 }
 
 module "route53_hosted_zone_certificate" {
-  source = "github.com/botre/terraform-recipes/modules/aws/route53_hosted_zone_certificate"
+  source = "github.com/botre/terraform-recipes/modules/aws/route53-hosted-zone-certificate"
   hosted_zone_name = local.hosted_zone.name
   certificate_domain_name = local.certificate_domain_name
   certificate_alternate_domain_names = local.certificate_alternate_domain_names
