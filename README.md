@@ -155,20 +155,13 @@ echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3:/
 
 ## SES domain
 
-Dependencies:
-
-- Route53 hosted zone
-
 ```hcl
-locals {
-  hosted_zone_name = "test.com"
-  email_domain_name = "test.com"
-}
-
 module "ses_domain" {
+  depends_on = [
+    aws_route53_zone.hosted_zone]
   source = "github.com/botre/terraform-recipes/modules/aws/ses-domain"
-  hosted_zone_name = local.hosted_zone_name
-  email_domain_name = local.email_domain_name
+  hosted_zone_name = aws_route53_zone.hosted_zone.name
+  email_domain_name = aws_route53_zone.hosted_zone.name
 }
 ```
 
