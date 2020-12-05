@@ -172,6 +172,33 @@ module "ses_domain" {
 }
 ```
 
+## Lambda S3 deployment
+
+```hcl
+locals {
+  function_name = "test-function"
+  handler_file_name = "main"
+  handler_function_name = "handler"
+  deployment_bucket_name = "deployments"
+  deployment_object_key = "deployment.zip"
+}
+
+module "deployment" {
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-s3-deployment"
+  deployment_bucket_name = local.deployment_bucket_name
+  deployment_object_key = local.deployment_object_key
+  handler_file_name = local.handler_file_name
+  handler_function_name = local.handler_function_name
+}
+
+resource "aws_lambda_function" "function" {
+  function_name = local.function_name
+  s3_bucket = module.deployment.deployment_bucket_id
+  s3_key = module.deployment.deployment_object_key
+  handler = "${local.handler_file_name}.${local.function_name}"
+}
+```
+
 ## Lambda API Gateway trigger
 
 Dependencies:
