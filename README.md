@@ -66,6 +66,10 @@ locals {
 resource "aws_route53_zone" "hosted_zone" {
   name = local.hosted_zone_name
 }
+
+output "name_servers" {
+  value = aws_route53_zone.hosted_zone.name_servers
+}
 ```
 
 ## Route53 hosted zone certificate
