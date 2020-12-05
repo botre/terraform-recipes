@@ -96,7 +96,7 @@ locals {
 
 module "route53_hosted_zone_certificate" {
   source = "github.com/botre/terraform-recipes/modules/aws/route-53-hosted-zone-certificate"
-  hosted_zone_name = local.hosted_zone.name
+  hosted_zone_name = local.hosted_zone_name
   certificate_domain_name = local.certificate_domain_name
   certificate_alternate_domain_names = local.certificate_alternate_domain_names
   providers = {
@@ -131,7 +131,7 @@ locals {
 
 module "s3_cloudfront_website" {
   source = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-website"
-  hosted_zone_name = local.hosted_zone.name
+  hosted_zone_name = local.hosted_zone_name
   certificate_domain_name = local.certificate_domain_name
   bucket_name = local.bucket_name
   record_aliases = local.record_aliases
@@ -155,7 +155,7 @@ locals {
 
 module "ses_domain" {
   source = "github.com/botre/terraform-recipes/modules/aws/ses-domain"
-  hosted_zone_name = local.hosted_zone.name
+  hosted_zone_name = local.hosted_zone_name
   email_domain_name = local.email_domain_name
 }
 ```
