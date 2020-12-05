@@ -172,6 +172,14 @@ module "ses_domain" {
 }
 ```
 
+## Lambda IAM role
+
+```hcl
+module "role" {
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-iam-role"
+}
+```
+
 ## Lambda S3 deployment
 
 ```hcl
@@ -201,35 +209,23 @@ resource "aws_lambda_function" "function" {
 
 ## Lambda API Gateway trigger
 
-Dependencies:
-
-- Lambda function
-
 ```hcl
-locals {
-  function_name = "test"
-}
-
 module "api_gateway_trigger" {
+  depends_on = [
+    aws_lambda_function.function]
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
-  function_name = local.function_name
+  function_name = aws_lambda_function.function.function_name
 }
 ```
 
 ## Lambda scheduled trigger
 
-Dependencies:
-
-- Lambda function
-
 ```hcl
-locals {
-  function_name = "test"
-}
-
 module "scheduled_trigger" {
+  depends_on = [
+    aws_lambda_function.function]
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-scheduled-trigger"
-  function_name = local.function_name
+  function_name = aws_lambda_function.function.function_name
   rule_name = "every-five-minutes"
   rule_description = "Fires every 5 minutes"
   rule_schedule_expression = "rate(5 minutes)"
