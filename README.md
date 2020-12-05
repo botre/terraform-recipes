@@ -172,6 +172,23 @@ module "ses_domain" {
 }
 ```
 
+## Lambda API Gateway trigger
+
+Dependencies:
+
+- Lambda function
+
+```hcl
+locals {
+  function_name = "test"
+}
+
+module "api_gateway_trigger" {
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
+  function_name = local.function_name
+}
+```
+
 ## Lambda scheduled trigger
 
 Dependencies:
