@@ -171,3 +171,23 @@ module "ses_domain" {
   email_domain_name = local.email_domain_name
 }
 ```
+
+## Lambda scheduled trigger
+
+Dependencies:
+
+- Lambda function
+
+```hcl
+locals {
+  function_name = "test"
+}
+
+module "scheduled_trigger" {
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-scheduled-trigger"
+  function_name = local.function_name
+  rule_name = "every-five-minutes"
+  rule_description = "Fires every 5 minutes"
+  rule_schedule_expression = "rate(5 minutes)"
+}
+```
