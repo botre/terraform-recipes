@@ -74,10 +74,6 @@ output "name_servers" {
 
 ## Route53 hosted zone certificate
 
-Dependencies:
-
-- Route53 hosted zone
-
 ```hcl
 provider "aws" {
   profile = "default"
@@ -87,17 +83,17 @@ provider "aws" {
 }
 
 locals {
-  hosted_zone_name = "test.com"
-  certificate_domain_name = "test.com"
   certificate_alternate_domain_names = [
     "test.com",
     "*.test.com"]
 }
 
-module "route53_hosted_zone_certificate" {
+module "certificate" {
+  depends_on = [
+    aws_route53_zone.hosted_zone]
   source = "github.com/botre/terraform-recipes/modules/aws/route-53-hosted-zone-certificate"
-  hosted_zone_name = local.hosted_zone_name
-  certificate_domain_name = local.certificate_domain_name
+  hosted_zone_name = aws_route53_zone.hosted_zone.name
+  certificate_domain_name = aws_route53_zone.hosted_zone.name
   certificate_alternate_domain_names = local.certificate_alternate_domain_names
   providers = {
     aws.aws-us-east-1 = aws.aws-us-east-1
@@ -106,11 +102,6 @@ module "route53_hosted_zone_certificate" {
 ```
 
 ## S3 + CloudFront website
-
-Dependencies:
-
-- Route53 hosted zone
-- Certificate covering domain name and record aliases
 
 ```hcl
 provider "aws" {
@@ -130,6 +121,9 @@ locals {
 }
 
 module "s3_cloudfront_website" {
+  depends_on = [
+    aws_route53_zone.hosted_zone,
+    module.certificate]
   source = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-website"
   hosted_zone_name = local.hosted_zone_name
   certificate_domain_name = local.certificate_domain_name
