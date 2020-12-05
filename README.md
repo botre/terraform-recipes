@@ -239,3 +239,19 @@ module "logging_policy" {
   role_name = module.role.role_name
 }
 ```
+
+## IAM SES send policy
+
+```hcl
+module "role" {
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-iam-role"
+  prefix = "project"
+}
+
+module "ses_send_policy" {
+  depends_on = [
+    module.role]
+  source = "github.com/botre/terraform-recipes/modules/aws/iam-ses-send-policy"
+  role_name = module.role.role_name
+}
+```
