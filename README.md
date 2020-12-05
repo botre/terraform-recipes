@@ -236,3 +236,19 @@ module "scheduled_trigger" {
   rule_schedule_expression = "rate(5 minutes)"
 }
 ```
+
+## IAM logging policy
+
+```hcl
+module "role" {
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-iam-role"
+  prefix = "project"
+}
+
+module "logging_policy" {
+  depends_on = [
+    module.role]
+  source = "github.com/botre/terraform-recipes/modules/aws/iam-logging-policy"
+  role_name = module.role.role_name
+}
+```
