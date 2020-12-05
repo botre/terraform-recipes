@@ -76,6 +76,7 @@ Dependencies:
 
 ```hcl
 provider "aws" {
+  profile = "default"
   version = "~> 2.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
@@ -109,6 +110,7 @@ Dependencies:
 
 ```hcl
 provider "aws" {
+  profile = "default"
   version = "~> 2.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
