@@ -177,6 +177,11 @@ module "ses_domain" {
 ```hcl
 module "role" {
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-iam-role"
+  prefix = "project"
+}
+
+resource "aws_lambda_function" "function" {
+  role = module.api_role.role_arn
 }
 ```
 
