@@ -181,7 +181,7 @@ module "role" {
 }
 
 resource "aws_lambda_function" "function" {
-  role = module.api_role.role_arn
+  role = module.role.role_arn
 }
 ```
 
