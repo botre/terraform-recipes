@@ -141,6 +141,18 @@ module "s3_cloudfront_website" {
 }
 ```
 
+```bash
+#!/bin/bash
+
+PROFILE=default
+BUCKET_NAME=test-bucket
+
+export AWS_PROFILE=$PROFILE
+
+aws s3 rm s3://$BUCKET_NAME --recursive
+echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3://$BUCKET_NAME/index.html --content-type text/html
+```
+
 ## SES domain
 
 Dependencies:
