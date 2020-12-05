@@ -255,3 +255,34 @@ module "ses_send_policy" {
   role_name = module.role.role_name
 }
 ```
+
+## API Gateway custom domain
+
+```hcl
+provider "aws" {
+  profile = "default"
+  version = "~> 2.0"
+  region = "us-east-1"
+  alias = "aws-us-east-1"
+}
+
+locals {
+  api_domain_name = "api.test.com"
+}
+
+module "api_custom_domain" {
+  depends_on = [
+    aws_route53_zone.hosted_zone,
+    module.certificate,
+    module.api_gateway]
+  source = "github.com/botre/terraform-recipes/modules/aws/api-gateway-custom-domain"
+  hosted_zone_name = data.aws_route53_zone.hosted_zone.name
+  certificate_domain_name = module.certificate.certificate_domain_name
+  domain_name = local.api_domain_name
+  gateway_rest_api_name = module.api_gateway.gateway_rest_api_name
+  gateway_deployment_stage_name = module.api_gateway.gateway_deployment_stage_name
+  providers = {
+    aws.aws-us-east-1 = aws.aws-us-east-1
+  }
+}
+```
