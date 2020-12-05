@@ -31,10 +31,28 @@ Echo Finished
 ```hcl
 terraform {
   backend "s3" {
+    profile = "default"
     region = "eu-west-1"
     bucket = "terraform-state"
     key = "project-key"
   }
+}
+```
+
+## Providers setup
+
+```hcl
+provider "aws" {
+  profile = "default"
+  version = "~> 2.0"
+  region = "eu-west-1"
+}
+
+provider "aws" {
+  profile = "default"
+  version = "~> 2.0"
+  region = "us-east-1"
+  alias = "aws-us-east-1"
 }
 ```
 
