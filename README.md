@@ -13,11 +13,8 @@ terraform output -json > infrastructure.json
 ```bash
 #!/bin/bash
 
-PROFILE=default
 BUCKET_NAME=terraform-state
 BUCKET_REGION=eu-west-1
-
-export AWS_PROFILE=$PROFILE
 
 echo Creating bucket
 aws s3 mb s3://$BUCKET_NAME --region "$BUCKET_REGION"
@@ -37,7 +34,6 @@ Echo Finished
 ```hcl
 terraform {
   backend "s3" {
-    profile = "default"
     region = "eu-west-1"
     bucket = "terraform-state"
     key = "project-key"
@@ -49,13 +45,11 @@ terraform {
 
 ```hcl
 provider "aws" {
-  profile = "default"
   version = "~> 2.0"
   region = "eu-west-1"
 }
 
 provider "aws" {
-  profile = "default"
   version = "~> 2.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
@@ -82,7 +76,6 @@ output "name_servers" {
 
 ```hcl
 provider "aws" {
-  profile = "default"
   version = "~> 2.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
@@ -111,7 +104,6 @@ module "certificate" {
 
 ```hcl
 provider "aws" {
-  profile = "default"
   version = "~> 2.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
@@ -144,10 +136,7 @@ module "s3_cloudfront_website" {
 ```bash
 #!/bin/bash
 
-PROFILE=default
 BUCKET_NAME=test-bucket
-
-export AWS_PROFILE=$PROFILE
 
 aws s3 rm s3://$BUCKET_NAME --recursive
 echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3://$BUCKET_NAME/index.html --content-type text/html
@@ -210,8 +199,6 @@ resource "aws_lambda_function" "function" {
 
 set -e
 
-PROFILE=
-
 BUILD_DIRECTORY=
 BUILD_FILE_NAME=
 
@@ -222,8 +209,6 @@ HANDLER_FILE_NAME=
 
 FUNCTION_NAME=
 FUNCTION_REGION=
-
-export AWS_PROFILE=$PROFILE
 
 (cd $BUILD_DIRECTORY && mv $BUILD_FILE_NAME "$HANDLER_FILE_NAME" && zip "$DEPLOYMENT_OBJECT_KEY" "$HANDLER_FILE_NAME")
 aws s3 sync $BUILD_DIRECTORY s3://"$DEPLOYMENT_BUCKET" --delete
@@ -292,7 +277,6 @@ module "ses_send_policy" {
 
 ```hcl
 provider "aws" {
-  profile = "default"
   version = "~> 2.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
