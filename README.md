@@ -45,12 +45,12 @@ terraform {
 
 ```hcl
 provider "aws" {
-  version = "~> 2.0"
+  version = "~> 3.0"
   region = "eu-west-1"
 }
 
 provider "aws" {
-  version = "~> 2.0"
+  version = "~> 3.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
@@ -76,7 +76,7 @@ output "name_servers" {
 
 ```hcl
 provider "aws" {
-  version = "~> 2.0"
+  version = "~> 3.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
@@ -104,7 +104,7 @@ module "certificate" {
 
 ```hcl
 provider "aws" {
-  version = "~> 2.0"
+  version = "~> 3.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
@@ -283,7 +283,7 @@ module "ses_send_policy" {
 
 ```hcl
 provider "aws" {
-  version = "~> 2.0"
+  version = "~> 3.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
