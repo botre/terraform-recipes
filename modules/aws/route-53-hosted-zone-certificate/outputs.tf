@@ -11,6 +11,6 @@ output "certificate_record_type" {
 }
 
 output "certificate_record_value" {
-  value = aws_acm_certificate.certificate.domain_validation_options[0].resource_record_value
+  value = tolist(aws_acm_certificate.certificate.domain_validation_options)[0].resource_record_value
   sensitive = true
 }

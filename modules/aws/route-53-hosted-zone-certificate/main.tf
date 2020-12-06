@@ -6,11 +6,11 @@ resource "aws_acm_certificate" "certificate" {
 }
 
 resource "aws_route53_record" "validation_record" {
-  name = aws_acm_certificate.certificate.domain_validation_options[0].resource_record_name
-  type = aws_acm_certificate.certificate.domain_validation_options[0].resource_record_type
+  name = tolist(aws_acm_certificate.certificate.domain_validation_options)[0].resource_record_name
+  type = tolist(aws_acm_certificate.certificate.domain_validation_options)[0].resource_record_type
   zone_id = data.aws_route53_zone.hosted_zone.zone_id
   records = [
-    aws_acm_certificate.certificate.domain_validation_options[0].resource_record_value]
+    tolist(aws_acm_certificate.certificate.domain_validation_options)[0].resource_record_value]
   ttl = 60
 }
 
