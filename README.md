@@ -142,6 +142,12 @@ aws s3 rm s3://$BUCKET_NAME --recursive
 echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3://$BUCKET_NAME/index.html --content-type text/html
 ```
 
+```bash
+#!/bin/bash
+
+aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_NAME" --delete --acl public-read && aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"
+```
+
 ## SES domain
 
 ```hcl
