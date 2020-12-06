@@ -2,6 +2,12 @@
 
 ## AWS
 
+## Save output to JSON
+
+```bash
+terraform output -json > infrastructure.json
+```
+
 ## State bucket
 
 ```bash
@@ -197,6 +203,32 @@ resource "aws_lambda_function" "function" {
   s3_key = module.deployment.deployment_object_key
   handler = "${local.handler_file_name}.${local.function_name}"
 }
+```
+
+```bash
+#!/bin/bash
+
+set -e
+
+PROFILE=
+
+BUILD_DIRECTORY=
+BUILD_FILE_NAME=
+
+DEPLOYMENT_BUCKET=
+DEPLOYMENT_OBJECT_KEY=
+
+HANDLER_FILE_NAME=
+
+FUNCTION_NAME=
+FUNCTION_REGION=
+
+export AWS_PROFILE=$PROFILE
+
+(cd $BUILD_DIRECTORY && mv $BUILD_FILE_NAME "$HANDLER_FILE_NAME" && zip "$DEPLOYMENT_OBJECT_KEY" "$HANDLER_FILE_NAME")
+aws s3 sync $BUILD_DIRECTORY s3://"$DEPLOYMENT_BUCKET" --delete
+aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket "$DEPLOYMENT_BUCKET" --s3-key "$DEPLOYMENT_OBJECT_KEY" --region "$FUNCTION_REGION" --publish
+aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --region "$FUNCTION_REGION"
 ```
 
 ## Lambda API Gateway trigger
