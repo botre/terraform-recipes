@@ -7,5 +7,5 @@ variable "certificate_domain_name" {
 }
 
 variable "certificate_alternate_domain_names" {
-  type = list(string)
+  type = set(string)
 }
