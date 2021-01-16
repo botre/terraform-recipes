@@ -16,15 +16,16 @@ resource "aws_budgets_budget" "budget" {
   budget_type = "COST"
   limit_amount = "50.0"
   limit_unit = "USD"
-  time_period_end = "2085-01-01_00:00"
   time_period_start = "2020-01-01_00:00"
+  time_period_end = "2085-01-01_00:00"
   time_unit = "MONTHLY"
   notification {
     comparison_operator = "GREATER_THAN"
     threshold = 100
     threshold_type = "PERCENTAGE"
     notification_type = "FORECASTED"
-    subscriber_email_addresses = ["your@email.com"]
+    subscriber_email_addresses = [
+      "your@email.com"]
   }
 }
 ```
@@ -52,9 +53,16 @@ aws s3api put-bucket-acl --bucket $BUCKET_NAME --acl private
 Echo Finished
 ```
 
+To use a named profile, add the following to the above snippet:
+
+```bash
+export AWS_PROFILE=your-named-profile
+```
+
 ```hcl
 terraform {
   backend "s3" {
+    profile = "your-named-profile"
     region = "eu-west-1"
     bucket = "terraform-state"
     key = "project-key"
@@ -65,13 +73,22 @@ terraform {
 ## Providers setup
 
 ```hcl
+terraform {
+  required_providers {
+    aws = {
+      version = "~> 3.0"
+      source = "hashicorp/aws"
+    }
+  }
+}
+
 provider "aws" {
-  version = "~> 3.0"
+  profile = "your-named-profile"
   region = "eu-west-1"
 }
 
 provider "aws" {
-  version = "~> 3.0"
+  profile = "your-named-profile"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
@@ -97,13 +114,13 @@ output "name_servers" {
 
 ```hcl
 provider "aws" {
-  version = "~> 3.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
 
 locals {
-  certificate_alternate_domain_names = ["*.test.com"]
+  certificate_alternate_domain_names = [
+    "*.test.com"]
 }
 
 module "certificate" {
@@ -119,11 +136,42 @@ module "certificate" {
 }
 ```
 
+## TXT records
+
+```hcl
+resource "aws_route53_record" "route_53_root_txt" {
+  zone_id = aws_route53_zone.hosted_zone.id
+  name = ""
+  type = "TXT"
+  ttl = "300"
+  records = [
+    "service-a=service-a-secret",
+    "service-b=service-b-secret",
+    "service-c=service-c-secret"
+  ]
+}
+```
+
+## MX records
+
+```hcl
+resource "aws_route53_record" "route_53_root_txt" {
+  zone_id = aws_route53_zone.hosted_zone.id
+  name = ""
+  type = "TXT"
+  ttl = "300"
+  records = [
+    "1 MX.EXAMPLE.COM.",
+    "5 MX.EXAMPLE.COM.",
+    "10 MX.EXAMPLE.COM."
+  ]
+}
+```
+
 ## S3 + CloudFront website
 
 ```hcl
 provider "aws" {
-  version = "~> 3.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
@@ -302,7 +350,6 @@ module "ses_send_policy" {
 
 ```hcl
 provider "aws" {
-  version = "~> 3.0"
   region = "us-east-1"
   alias = "aws-us-east-1"
 }
