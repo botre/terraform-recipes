@@ -2,13 +2,13 @@
 
 ## AWS
 
-## Save output to JSON
+### Save output to JSON
 
 ```bash
 terraform output -json > infrastructure.json
 ```
 
-## Monthly budget alert
+### Monthly budget alert
 
 ```hcl
 resource "aws_budgets_budget" "budget" {
@@ -30,7 +30,7 @@ resource "aws_budgets_budget" "budget" {
 }
 ```
 
-## State bucket
+### State bucket
 
 ```bash
 #!/bin/bash
@@ -70,7 +70,7 @@ terraform {
 }
 ```
 
-## Providers setup
+### Providers setup
 
 ```hcl
 terraform {
@@ -94,7 +94,7 @@ provider "aws" {
 }
 ```
 
-## Route53 hosted zone
+### Route53 hosted zone
 
 ```hcl
 locals {
@@ -110,7 +110,7 @@ output "name_servers" {
 }
 ```
 
-## Route53 hosted zone certificate
+### Route53 hosted zone certificate
 
 ```hcl
 provider "aws" {
@@ -136,7 +136,7 @@ module "certificate" {
 }
 ```
 
-## TXT records
+### TXT records
 
 ```hcl
 resource "aws_route53_record" "route_53_root_txt" {
@@ -152,7 +152,7 @@ resource "aws_route53_record" "route_53_root_txt" {
 }
 ```
 
-## MX records
+### MX records
 
 ```hcl
 resource "aws_route53_record" "route_53_root_txt" {
@@ -168,7 +168,7 @@ resource "aws_route53_record" "route_53_root_txt" {
 }
 ```
 
-## S3 + CloudFront website
+### S3 + CloudFront website
 
 ```hcl
 provider "aws" {
@@ -215,7 +215,7 @@ echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3:/
 aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_NAME" --delete --acl public-read && aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"
 ```
 
-## SES domain
+### SES domain
 
 ```hcl
 module "ses_domain" {
@@ -227,7 +227,7 @@ module "ses_domain" {
 }
 ```
 
-## Lambda IAM role
+### Lambda IAM role
 
 ```hcl
 module "role" {
@@ -240,7 +240,7 @@ resource "aws_lambda_function" "function" {
 }
 ```
 
-## Lambda S3 deployment
+### Lambda S3 deployment
 
 ```hcl
 locals {
@@ -289,7 +289,7 @@ aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket "$D
 aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --region "$FUNCTION_REGION"
 ```
 
-## Lambda API Gateway trigger
+### Lambda API Gateway trigger
 
 ```hcl
 module "api_gateway_trigger" {
@@ -300,7 +300,7 @@ module "api_gateway_trigger" {
 }
 ```
 
-## Lambda scheduled trigger
+### Lambda scheduled trigger
 
 ```hcl
 module "scheduled_trigger" {
@@ -314,7 +314,7 @@ module "scheduled_trigger" {
 }
 ```
 
-## IAM logging policy
+### IAM logging policy
 
 ```hcl
 module "role" {
@@ -330,7 +330,7 @@ module "logging_policy" {
 }
 ```
 
-## IAM SES send policy
+### IAM SES send policy
 
 ```hcl
 module "role" {
@@ -346,7 +346,7 @@ module "ses_send_policy" {
 }
 ```
 
-## API Gateway custom domain
+### API Gateway custom domain
 
 ```hcl
 provider "aws" {
