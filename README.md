@@ -5,7 +5,7 @@
 ### Get caller identity
 
 ```bash
- aws sts get-caller-identity --profile named-profile
+aws sts get-caller-identity --profile named-profile
 ```
 
 ### Save output to JSON
