@@ -339,17 +339,6 @@ resource "aws_lambda_function" "function" {
 }
 ```
 
-### Lambda API Gateway trigger
-
-```hcl
-module "api_gateway_trigger" {
-  depends_on = [
-    aws_lambda_function.function]
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
-  function_name = aws_lambda_function.function.function_name
-}
-```
-
 ```dockerfile
 FROM public.ecr.aws/lambda/nodejs:12
 COPY package*.json ./
@@ -378,6 +367,17 @@ aws ecr get-login-password --region "$REGION" | docker login --username AWS --pa
 docker push $IMAGE_URI
 
 aws lambda update-function-code --function-name "$FUNCTION_NAME" --region "$FUNCTION_REGION" --image-uri $IMAGE_URI --publish
+```
+
+### Lambda API Gateway trigger
+
+```hcl
+module "api_gateway_trigger" {
+  depends_on = [
+    aws_lambda_function.function]
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
+  function_name = aws_lambda_function.function.function_name
+}
 ```
 
 ### Lambda scheduled trigger
