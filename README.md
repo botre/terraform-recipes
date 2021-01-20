@@ -295,6 +295,50 @@ aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket "$D
 aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --region "$FUNCTION_REGION"
 ```
 
+### Lambda ECR deployment
+
+```hcl
+resource "aws_ecr_repository" "container_repository" {
+  name = local.container_repository_name
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "ecr_policy" {
+  repository = aws_ecr_repository.container_repository.name
+  policy = <<EOF
+{
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Expire untagged images older than 14 days",
+            "selection": {
+                "tagStatus": "untagged",
+                "countType": "sinceImagePushed",
+                "countUnit": "days",
+                "countNumber": 14
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
+}
+EOF
+}
+```
+
+```hcl
+resource "aws_lambda_function" "function" {
+  function_name = local.function_name
+  image_uri = "${aws_ecr_repository.container_repository.repository_url}:latest"
+  package_type = "Image"
+  memory_size = 1024
+  timeout = 10
+}
+```
+
 ### Lambda API Gateway trigger
 
 ```hcl
@@ -304,6 +348,36 @@ module "api_gateway_trigger" {
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
   function_name = aws_lambda_function.function.function_name
 }
+```
+
+```dockerfile
+FROM public.ecr.aws/lambda/nodejs:12
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY ./src ./src
+RUN npm ci
+RUN npx tsc
+CMD [ "dist/serverless.handler" ]
+```
+
+```bash
+#!/bin/bash
+
+ACCOUNT_ID=
+REGION=
+REPOSITORY=
+TAG="latest"
+FUNCTION_NAME=
+FUNCTION_REGION=
+IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:$TAG
+
+docker tag $REPOSITORY:$TAG $IMAGE_URI
+
+aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com"
+
+docker push $IMAGE_URI
+
+aws lambda update-function-code --function-name "$FUNCTION_NAME" --region "$FUNCTION_REGION" --image-uri $IMAGE_URI --publish
 ```
 
 ### Lambda scheduled trigger
