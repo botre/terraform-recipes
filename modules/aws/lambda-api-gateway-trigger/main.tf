@@ -1,3 +1,7 @@
+resource "aws_api_gateway_rest_api" "gateway_rest_api" {
+  name = "${data.aws_lambda_function.function.function_name}-api"
+}
+
 resource "aws_api_gateway_resource" "gateway_proxy_resource" {
   rest_api_id = aws_api_gateway_rest_api.gateway_rest_api.id
   parent_id = aws_api_gateway_rest_api.gateway_rest_api.root_resource_id
@@ -42,7 +46,7 @@ resource "aws_api_gateway_deployment" "gateway_deployment" {
     aws_api_gateway_integration.gateway_root_integration,
   ]
   rest_api_id = aws_api_gateway_rest_api.gateway_rest_api.id
-  stage_name = "production"
+  stage_name = var.stage_name
 }
 
 resource "aws_lambda_permission" "lambda_gateway_permission" {
@@ -51,8 +55,4 @@ resource "aws_lambda_permission" "lambda_gateway_permission" {
   function_name = data.aws_lambda_function.function.function_name
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.gateway_rest_api.execution_arn}/*/*"
-}
-
-resource "aws_api_gateway_rest_api" "gateway_rest_api" {
-  name = "${data.aws_lambda_function.function.function_name}-api"
 }
