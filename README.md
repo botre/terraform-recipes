@@ -24,6 +24,12 @@ output "caller_user" {
 }
 ```
 
+### Get current region
+
+```hcl
+data "aws_region" "current" {}
+```
+
 ### Save output to JSON
 
 ```bash
