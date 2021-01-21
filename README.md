@@ -402,6 +402,17 @@ module "api_gateway_trigger" {
 }
 ```
 
+### Setting Lambda environment variables from a .env file
+
+```bash
+ENVIRONMENT_VARIABLES="{$(
+  < .env.production sed '/^#/d' | \
+  sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/,/g'
+)}"
+
+aws lambda update-function-code --function-name "$FUNCTION" --region "$REGION" --environment "Variables=$ENVIRONMENT_VARIABLES" --publish
+```
+
 ### Lambda scheduled trigger
 
 ```hcl
