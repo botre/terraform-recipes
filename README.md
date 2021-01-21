@@ -410,7 +410,7 @@ ENVIRONMENT_VARIABLES="{$(
   sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/,/g'
 )}"
 
-aws lambda update-function-code --function-name "$FUNCTION" --region "$REGION" --environment "Variables=$ENVIRONMENT_VARIABLES" --publish
+aws lambda update-function-configuration --function-name "$FUNCTION" --region "$REGION" --environment "Variables=$ENVIRONMENT_VARIABLES"
 ```
 
 ### Lambda scheduled trigger
