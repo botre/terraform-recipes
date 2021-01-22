@@ -499,3 +499,53 @@ module "custom_domain" {
   }
 }
 ```
+
+### API Gateway WAF
+
+```hcl
+resource "aws_wafv2_web_acl" "api_firewall" {
+  name = "api-firewall"
+
+  scope = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  rule {
+    name = "ip-rate-limit"
+    priority = 1
+
+    action {
+      block {}
+    }
+
+    statement {
+      rate_based_statement {
+        limit = 300
+        aggregate_key_type = "IP"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name = "RateLimitedIP"
+      sampled_requests_enabled = true
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name = "Allowed"
+    sampled_requests_enabled = true
+  }
+}
+
+resource "aws_wafv2_web_acl_association" "api_firewall_association" {
+  depends_on = [
+    module.api_gateway_trigger,
+    aws_wafv2_web_acl.api_firewall]
+  resource_arn = module.api_gateway_trigger.gateway_stage_arn
+  web_acl_arn = aws_wafv2_web_acl.api_firewall.arn
+}
+```
