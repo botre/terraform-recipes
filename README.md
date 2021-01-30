@@ -183,10 +183,10 @@ resource "aws_route53_record" "route_53_root_txt" {
 ### MX records
 
 ```hcl
-resource "aws_route53_record" "route_53_root_txt" {
+resource "aws_route53_record" "route_53_root_mx" {
   zone_id = aws_route53_zone.hosted_zone.id
   name = ""
-  type = "TXT"
+  type = "MX"
   ttl = "300"
   records = [
     "1 MX.EXAMPLE.COM.",
