@@ -747,3 +747,28 @@ duration=$SECONDS
 
 echo "deploy finished ($duration seconds)"
 ```
+
+```Dockerfile
+FROM node:12-alpine
+
+# Create app directory
+WORKDIR /usr/src/application
+
+ENV NODE_ENV ci
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy application source
+COPY . .
+
+# Compile TS
+RUN npm run build
+
+ENV NODE_ENV production
+
+# Expose port and start server
+EXPOSE 8080
+CMD ["npm", "run", "start"]
+```
