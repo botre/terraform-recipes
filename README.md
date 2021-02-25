@@ -549,3 +549,201 @@ resource "aws_wafv2_web_acl_association" "api_firewall_association" {
   web_acl_arn = aws_wafv2_web_acl.api_firewall.arn
 }
 ```
+
+### Elastic Beanstalk Node.js Single-Instance
+
+```hcl
+terraform {
+  required_providers {
+    aws = {
+      version = "~> 3.0"
+      source = "hashicorp/aws"
+    }
+  }
+}
+
+provider "aws" {
+  region = "eu-west-1"
+}
+
+# S3 bucket to store EB task definitions
+resource "aws_s3_bucket" "eb_task_definitions" {
+  bucket = "${var.application_name}-eb-task-definitions"
+  force_destroy = true
+}
+
+# ECR for Docker images
+resource "aws_ecr_repository" "container_repository" {
+  name = var.application_name
+}
+
+# EB instance profile
+resource "aws_iam_instance_profile" "eb_instance_profile" {
+  name = "${var.application_name}-eb-instance-profile"
+  role = aws_iam_role.eb_instance_role.name
+}
+
+resource "aws_iam_role" "eb_instance_role" {
+  name = "${var.application_name}-eb-instance-role"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+# EB instance policy
+# Overriding because by default Beanstalk does not have a permission to Read ECR
+resource "aws_iam_role_policy" "eb_instance_policy" {
+  name = "${var.application_name}-eb-instance-policy"
+  role = aws_iam_role.eb_instance_role.id
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "cloudwatch:PutMetricData",
+        "ds:CreateComputer",
+        "ds:DescribeDirectories",
+        "ec2:DescribeInstanceStatus",
+        "logs:*",
+        "ssm:*",
+        "ec2messages:*",
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:GetRepositoryPolicy",
+        "ecr:DescribeRepositories",
+        "ecr:ListImages",
+        "ecr:DescribeImages",
+        "ecr:BatchGetImage",
+        "s3:*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+# EB application
+resource "aws_elastic_beanstalk_application" "eb_application" {
+  name = var.application_name
+  description = var.application_description
+}
+
+# EB environment
+resource "aws_elastic_beanstalk_environment" "eb_environment" {
+  name = "${var.application_name}-${var.application_environment}"
+  application = aws_elastic_beanstalk_application.eb_application.name
+  solution_stack_name = "64bit Amazon Linux 2018.03 v2.15.1 running Docker 19.03.6-ce"
+  tier = "WebServer"
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name = "InstanceType"
+    value = "t2.micro"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name = "EnvironmentType"
+    value = "SingleInstance"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name = "MaxSize"
+    value = "1"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name = "IamInstanceProfile"
+    value = aws_iam_instance_profile.eb_instance_profile.name
+  }
+}
+```
+
+```bash
+#!/bin/bash
+
+set -e
+
+SECONDS=0
+
+echo "deploy started"
+
+AWS_ACCOUNT_ID=$1
+AWS_REGION=$2
+APPLICATION_NAME=$3
+APPLICATION_ENVIRONMENT=$4
+APPLICATION_VERSION=$APPLICATION_ENVIRONMENT-$(date +%s)
+APPLICATION_PORT=$5
+S3_BUCKET=$APPLICATION_NAME-eb-task-definitions
+S3_FILE="$APPLICATION_VERSION".zip
+DIST_DIRECTORY="dist"
+
+echo Deploying "$APPLICATION_NAME", stage: "$APPLICATION_ENVIRONMENT", region: "$AWS_REGION", version: "$APPLICATION_VERSION"
+
+aws configure set default.region "$AWS_REGION"
+aws configure set default.output json
+
+echo Connecting to ECR
+aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+
+echo Building image
+docker build -t "$APPLICATION_NAME:$APPLICATION_VERSION" .
+
+echo Tagging image
+docker tag "$APPLICATION_NAME:$APPLICATION_VERSION" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$APPLICATION_NAME:$APPLICATION_VERSION"
+
+echo Pushing to ECR
+docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$APPLICATION_NAME:$APPLICATION_VERSION"
+
+echo Creating Dockerrun
+rm -rf $DIST_DIRECTORY
+mkdir -p $DIST_DIRECTORY
+cat >$DIST_DIRECTORY/Dockerrun.aws.json <<EOF
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$APPLICATION_NAME:$APPLICATION_VERSION",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "$APPLICATION_PORT"
+    }
+  ]
+}
+EOF
+
+echo Zipping Dockerrun
+zip -j "$DIST_DIRECTORY/$S3_FILE" "$DIST_DIRECTORY/Dockerrun.aws.json"
+
+echo Uploading Dockerrun
+aws s3 cp "$DIST_DIRECTORY/$S3_FILE" "s3://$S3_BUCKET/$S3_FILE"
+
+echo Creating new Beanstalk application version
+aws elasticbeanstalk create-application-version --application-name "$APPLICATION_NAME" --version-label "$APPLICATION_VERSION" --source-bundle S3Bucket="$S3_BUCKET",S3Key="$S3_FILE"
+
+echo Updating Beanstalk environment
+aws elasticbeanstalk update-environment --environment-name "$APPLICATION_NAME"-"$APPLICATION_ENVIRONMENT" --version-label "$APPLICATION_VERSION"
+
+duration=$SECONDS
+
+echo "deploy finished ($duration seconds)"
+```
