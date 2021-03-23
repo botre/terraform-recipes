@@ -255,6 +255,17 @@ module "ses_domain" {
 }
 ```
 
+### Lambda warmer
+
+```hcl
+module "lambda_warmer" {
+  source = "Nuagic/lambda-warmer/aws"
+  version = "~> 3.0"
+  function_name = aws_lambda_function.function.function_name
+  function_arn = aws_lambda_function.function.arn
+}
+```
+
 ### Lambda IAM role
 
 ```hcl
