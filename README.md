@@ -266,6 +266,27 @@ module "lambda_warmer" {
 }
 ```
 
+### Lambda alias
+
+```hcl
+resource "aws_lambda_alias" "function_alias" {
+  name = local.function_alias
+  function_name = aws_lambda_function.function.function_name
+  function_version = aws_lambda_function.function.version
+}
+```
+
+### Lambda provisioned concurrency
+
+```hcl
+resource "aws_lambda_provisioned_concurrency_config" "function_concurrency" {
+  function_name = aws_lambda_function.function.function_name
+  provisioned_concurrent_executions = local.function_provisioned_concurrency
+  qualifier = aws_lambda_function.function.version
+  qualifier = aws_lambda_alias.function_alias.name
+}
+```
+
 ### Lambda IAM role
 
 ```hcl
@@ -340,10 +361,15 @@ HANDLER_FILE_NAME=
 FUNCTION_NAME=
 FUNCTION_REGION=
 
+ALIAS=
+
 (cd $BUILD_DIRECTORY && mv $BUILD_FILE_NAME "$HANDLER_FILE_NAME" && zip "$DEPLOYMENT_OBJECT_KEY" "$HANDLER_FILE_NAME")
+
 aws s3 sync $BUILD_DIRECTORY s3://"$DEPLOYMENT_BUCKET" --delete --region "$FUNCTION_REGION"
-aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket "$DEPLOYMENT_BUCKET" --s3-key "$DEPLOYMENT_OBJECT_KEY" --region "$FUNCTION_REGION" --publish
-aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --region "$FUNCTION_REGION"
+
+VERSION=$(aws lambda update-function-code --function-name "$FUNCTION" -s3-key "$DEPLOYMENT_OBJECT_KEY" --publish --region "$REGION" | jq '.Version | tonumber')
+
+aws lambda update-alias --function-name "$FUNCTION" --name "$ALIAS" --function-version "$VERSION" --region "$REGION"
 ```
 
 ### Lambda ECR deployment
@@ -404,20 +430,32 @@ CMD [ "dist/serverless.handler" ]
 #!/bin/bash
 
 ACCOUNT_ID=
-REGION=
-REPOSITORY=
-TAG="latest"
-FUNCTION_NAME=
-FUNCTION_REGION=
-IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:$TAG
 
-docker tag $REPOSITORY:$TAG $IMAGE_URI
+REGION=
+
+REPOSITORY=
+
+TAG="latest"
+
+FUNCTION=
+
+IMAGE_URI=
+
+ALIAS=
+
+ENVIRONMENT_VARIABLES=
+
+docker tag "$REPOSITORY:$TAG" "$IMAGE_URI"
 
 aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com"
 
-docker push $IMAGE_URI
+docker push "$IMAGE_URI"
 
-aws lambda update-function-code --function-name "$FUNCTION_NAME" --region "$FUNCTION_REGION" --image-uri $IMAGE_URI --publish
+aws lambda update-function-configuration --function-name "$FUNCTION" --environment "Variables=$ENVIRONMENT_VARIABLES" --region "$REGION"
+
+VERSION=$(aws lambda update-function-code --function-name "$FUNCTION" --image-uri "$IMAGE_URI" --publish --region "$REGION" | jq '.Version | tonumber')
+
+aws lambda update-alias --function-name "$FUNCTION" --name "$ALIAS" --function-version "$VERSION" --region "$REGION"
 ```
 
 ### Lambda API Gateway trigger
@@ -440,6 +478,16 @@ ENVIRONMENT_VARIABLES="{$(
 )}"
 
 aws lambda update-function-configuration --function-name "$FUNCTION" --region "$REGION" --environment "Variables=$ENVIRONMENT_VARIABLES"
+```
+
+```hcl
+resource "aws_lambda_function" "function" {
+  lifecycle {
+    ignore_changes = [
+      environment
+    ]
+  }
+}
 ```
 
 ### Lambda scheduled trigger
