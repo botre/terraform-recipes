@@ -279,6 +279,24 @@ resource "aws_lambda_function" "function" {
 }
 ```
 
+### Lambda X-Ray
+
+```hcl
+resource "aws_iam_role_policy_attachment" "xray_policy" {
+  depends_on = [
+    module.role]
+  role = module.role.role_name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+}
+
+resource "aws_lambda_function" "function" {
+  role = module.role.role_arn
+  tracing_config {
+    mode = "Active"
+  }
+}
+```
+
 ### Lambda S3 deployment
 
 ```hcl
