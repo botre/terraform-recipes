@@ -357,14 +357,14 @@ DEPLOYMENT_OBJECT_KEY=
 
 HANDLER_FILE_NAME=
 
-FUNCTION_NAME=
-FUNCTION_REGION=
+FUNCTION=
+REGION=
 
 ALIAS=
 
 (cd $BUILD_DIRECTORY && mv $BUILD_FILE_NAME "$HANDLER_FILE_NAME" && zip "$DEPLOYMENT_OBJECT_KEY" "$HANDLER_FILE_NAME")
 
-aws s3 sync $BUILD_DIRECTORY s3://"$DEPLOYMENT_BUCKET" --delete --region "$FUNCTION_REGION"
+aws s3 sync $BUILD_DIRECTORY s3://"$DEPLOYMENT_BUCKET" --delete --region "$REGION"
 
 VERSION=$(aws lambda update-function-code --function-name "$FUNCTION" --s3-bucket "$DEPLOYMENT_BUCKET" --s3-key "$DEPLOYMENT_OBJECT_KEY" --publish --region "$REGION" | jq '.Version | tonumber')
 
