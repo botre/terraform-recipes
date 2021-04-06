@@ -367,7 +367,7 @@ ALIAS=
 
 aws s3 sync $BUILD_DIRECTORY s3://"$DEPLOYMENT_BUCKET" --delete --region "$FUNCTION_REGION"
 
-VERSION=$(aws lambda update-function-code --function-name "$FUNCTION" -s3-key "$DEPLOYMENT_OBJECT_KEY" --publish --region "$REGION" | jq '.Version | tonumber')
+VERSION=$(aws lambda update-function-code --function-name "$FUNCTION" --s3-bucket "$DEPLOYMENT_BUCKET" --s3-key "$DEPLOYMENT_OBJECT_KEY" --publish --region "$REGION" | jq '.Version | tonumber')
 
 aws lambda update-alias --function-name "$FUNCTION" --name "$ALIAS" --function-version "$VERSION" --region "$REGION"
 ```
