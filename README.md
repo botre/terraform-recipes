@@ -282,7 +282,6 @@ resource "aws_lambda_alias" "function_alias" {
 resource "aws_lambda_provisioned_concurrency_config" "function_concurrency" {
   function_name = aws_lambda_function.function.function_name
   provisioned_concurrent_executions = local.function_provisioned_concurrency
-  qualifier = aws_lambda_function.function.version
   qualifier = aws_lambda_alias.function_alias.name
 }
 ```
