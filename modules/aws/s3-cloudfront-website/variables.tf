@@ -13,3 +13,8 @@ variable "bucket_name" {
 variable "record_aliases" {
   type = list(string)
 }
+
+variable "error_document" {
+  type = string
+  default = "index.html"
+}
