@@ -263,6 +263,7 @@ module "lambda_warmer" {
   version = "~> 3.0"
   function_name = aws_lambda_function.function.function_name
   function_arn = aws_lambda_function.function.arn
+  rate = "rate(2 minutes)"
 }
 ```
 
@@ -410,18 +411,25 @@ resource "aws_lambda_function" "function" {
   function_name = local.function_name
   image_uri = "${aws_ecr_repository.container_repository.repository_url}:latest"
   package_type = "Image"
-  memory_size = 1024
-  timeout = 10
+  memory_size = 256
+  timeout = 6
 }
 ```
 
 ```dockerfile
-FROM public.ecr.aws/lambda/nodejs:12
+FROM node:12-alpine as build-image
+WORKDIR /application/
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY ./src ./src
 RUN npm ci
 RUN npx tsc
+
+FROM public.ecr.aws/lambda/nodejs:12
+COPY package*.json ./
+COPY .env* ./
+COPY --from=build-image ./application/dist ./dist
+RUN npm ci --production
 CMD [ "dist/serverless.handler" ]
 ```
 
