@@ -4,7 +4,7 @@ variable "name" {
 
 variable "protocol" {
   type = string
-  default = 'https'
+  default = "https"
 }
 
 variable "hostname" {
