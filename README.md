@@ -280,7 +280,7 @@ Do not use the /ping and /sping paths, they are reserved for API Gateway service
 module "lambda_api_warmer" {
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-warmer"
   name = "api-warmer"
-  hostname = "https://api.domain.com"
+  hostname = "api.domain.com"
   path = "/"
 }
 ```
