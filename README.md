@@ -267,6 +267,24 @@ module "lambda_warmer" {
 }
 ```
 
+### Lambda API warmer
+
+When X-Ray is enabled, API Gateway will only reuse those containers it has started itself and not any container started
+by other services (such as Lambda itself).
+
+This solution pre-warms a container via an actual invocation that comes through API Gateway.
+
+Do not use the /ping and /sping paths, they are reserved for API Gateway service health checks.
+
+```hcl
+module "lambda_api_warmer" {
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-warmer"
+  name = "api-warmer"
+  hostname = "https://api.domain.com"
+  path = "/"
+}
+```
+
 ### Lambda alias
 
 ```hcl
