@@ -292,6 +292,7 @@ resource "aws_lambda_alias" "function_alias" {
   name = local.function_alias
   function_name = aws_lambda_function.function.function_name
   function_version = aws_lambda_function.function.version
+  routing_config {}
 }
 ```
 
