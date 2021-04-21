@@ -22,5 +22,5 @@ variable "timeout" {
 
 variable "rate" {
   type = string
-  default = "rate(4 minutes)"
+  default = "rate(2 minutes)"
 }
