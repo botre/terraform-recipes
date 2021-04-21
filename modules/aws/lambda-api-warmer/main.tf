@@ -41,23 +41,24 @@ EOF
   }
 }
 
-resource "aws_iam_role" "role" {
-  name = "${var.name}-role"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
+resource "aws_cloudwatch_log_group" "log_group" {
+  name = "/aws/lambda/${aws_lambda_function.function.function_name}"
+  retention_in_days = 7
+  lifecycle {
+    prevent_destroy = false
+  }
 }
-EOF
+
+module "role" {
+  source = "../lambda-iam-role"
+  prefix = var.name
+}
+
+module "logging_policy" {
+  depends_on = [
+    module.role]
+  source = "../iam-logging-policy"
+  role_name = module.role.role_name
 }
 
 resource "aws_lambda_function" "function" {
@@ -66,26 +67,17 @@ resource "aws_lambda_function" "function" {
   source_code_hash = data.archive_file.inline.output_base64sha256
   handler = "main.handler"
   runtime = "nodejs12.x"
-  role = aws_iam_role.role.arn
+  role = module.role.role_arn
   memory_size = 128
   timeout = var.timeout
 }
 
-resource "aws_cloudwatch_event_rule" "rule" {
-  name = "${var.name}-rule"
-  schedule_expression = var.rate
-}
-
-resource "aws_cloudwatch_event_target" "target" {
-  rule = aws_cloudwatch_event_rule.rule.name
-  target_id = "lambda"
-  arn = aws_lambda_function.function.arn
-}
-
-resource "aws_lambda_permission" "permission" {
-  statement_id = "cloud-watch-${var.name}"
-  action = "lambda:InvokeFunction"
+module "trigger" {
+  depends_on = [
+    aws_lambda_function.function]
+  source = "../lambda-scheduled-trigger"
   function_name = aws_lambda_function.function.function_name
-  principal = "events.amazonaws.com"
-  source_arn = aws_cloudwatch_event_rule.rule.arn
+  rule_name = "${var.name}-trigger"
+  rule_description = "${var.name}-trigger"
+  rule_schedule_expression = var.rate
 }
