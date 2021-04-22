@@ -1,3 +1,8 @@
+resource "aws_cloudwatch_log_group" "gateway_execution_log_group" {
+  name = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.gateway_rest_api.id}/${var.stage_name}"
+  retention_in_days = 7
+}
+
 resource "aws_api_gateway_rest_api" "gateway_rest_api" {
   name = "${data.aws_lambda_function.function.function_name}-api"
 }
@@ -42,6 +47,7 @@ resource "aws_api_gateway_integration" "gateway_root_integration" {
 
 resource "aws_api_gateway_deployment" "gateway_deployment" {
   depends_on = [
+    aws_cloudwatch_log_group.gateway_execution_log_group,
     aws_api_gateway_integration.gateway_proxy_integration,
     aws_api_gateway_integration.gateway_root_integration,
   ]
