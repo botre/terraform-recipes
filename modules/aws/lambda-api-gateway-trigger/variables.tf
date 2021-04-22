@@ -9,5 +9,5 @@ variable "function_name" {
 
 variable "alias_name" {
   type = string
-  description = "Optional"
+  default = null
 }
