@@ -72,3 +72,13 @@ resource "aws_lambda_permission" "lambda_gateway_permission" {
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.gateway_rest_api.execution_arn}/*/*"
 }
+
+resource "aws_lambda_permission" "lambda_gateway_alias_permission" {
+  count = var.alias_name != "" ? 1 : 0
+  statement_id = "AllowAPIGatewayInvoke"
+  action = "lambda:InvokeFunction"
+  function_name = data.aws_lambda_function.function.function_name
+  qualifier = data.aws_lambda_alias.alias[0].name
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.gateway_rest_api.execution_arn}/*/*"
+}
