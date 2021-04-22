@@ -53,7 +53,7 @@ resource "aws_lambda_permission" "lambda_gateway_permission" {
   statement_id = "AllowAPIGatewayInvoke"
   action = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.function.function_name
+  qualifier = var.alias_name != "" ? var.alias_name : null
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.gateway_rest_api.execution_arn}/*/*"
-  qualifier = var.alias_name != "" ? var.alias_name : null
 }
