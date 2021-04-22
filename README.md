@@ -263,7 +263,6 @@ module "lambda_warmer" {
   version = "~> 3.0"
   function_name = aws_lambda_function.function.function_name
   function_arn = aws_lambda_function.function.arn
-  rate = "rate(2 minutes)"
 }
 ```
 
