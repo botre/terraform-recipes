@@ -494,6 +494,19 @@ module "api_gateway_trigger" {
 }
 ```
 
+If you have configured provisioned concurrency using an alias, you need to make sure API Gateway is triggering that
+published alias version instead of the $LATEST version.
+
+```hcl
+module "api_gateway_trigger" {
+  depends_on = [
+    aws_lambda_function.function]
+  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
+  function_name = aws_lambda_function.function.function_name
+  alias_name = aws_lambda_alias.alias.name
+}
+```
+
 ### Setting Lambda environment variables from a .env file
 
 ```bash

@@ -6,3 +6,8 @@ variable "stage_name" {
 variable "function_name" {
   type = string
 }
+
+variable "alias_name" {
+  type = string
+  description = "Optional"
+}
