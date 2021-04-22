@@ -5,14 +5,6 @@ resource "aws_cloudwatch_log_group" "gateway_execution_log_group" {
 
 resource "aws_api_gateway_rest_api" "gateway_rest_api" {
   name = "${data.aws_lambda_function.function.function_name}-api"
-  endpoint_configuration = [
-    {
-      types = [
-        "EDGE",
-      ]
-      vpc_endpoint_ids = []
-    },
-  ]
 }
 
 resource "aws_api_gateway_resource" "gateway_proxy_resource" {
