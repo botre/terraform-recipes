@@ -21,7 +21,7 @@ resource "aws_api_gateway_integration" "gateway_proxy_integration" {
   http_method = aws_api_gateway_method.gateway_any_method.http_method
   integration_http_method = "POST"
   type = "AWS_PROXY"
-  uri = var.alias_name != "" ? data.aws_lambda_alias.alias[*].invoke_arn : data.aws_lambda_function.function.invoke_arn
+  uri = var.alias_name != "" ? data.aws_lambda_alias.alias[0].invoke_arn : data.aws_lambda_function.function.invoke_arn
 }
 
 resource "aws_api_gateway_method" "gateway_root_method" {
@@ -37,7 +37,7 @@ resource "aws_api_gateway_integration" "gateway_root_integration" {
   http_method = aws_api_gateway_method.gateway_root_method.http_method
   integration_http_method = "POST"
   type = "AWS_PROXY"
-  uri = var.alias_name != "" ? data.aws_lambda_alias.alias[*].invoke_arn : data.aws_lambda_function.function.invoke_arn
+  uri = var.alias_name != "" ? data.aws_lambda_alias.alias[0].invoke_arn : data.aws_lambda_function.function.invoke_arn
 }
 
 resource "aws_api_gateway_deployment" "gateway_deployment" {
