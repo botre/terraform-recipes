@@ -595,10 +595,6 @@ locals {
 }
 
 module "custom_domain" {
-  depends_on = [
-    aws_route53_zone.hosted_zone,
-    module.certificate,
-    module.api_gateway_trigger]
   source = "github.com/botre/terraform-recipes/modules/aws/api-gateway-custom-domain"
   hosted_zone_name = aws_route53_zone.hosted_zone.name
   certificate_domain_name = module.certificate.certificate_domain_name
