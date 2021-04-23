@@ -75,7 +75,7 @@ resource "aws_lambda_permission" "lambda_gateway_permission" {
 
 resource "aws_lambda_permission" "lambda_gateway_alias_permission" {
   count = var.alias_name != "" ? 1 : 0
-  statement_id = "AllowAPIGatewayInvoke"
+  statement_id = "AllowAPIGatewayInvokeAlias"
   action = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.function.function_name
   qualifier = data.aws_lambda_alias.alias[0].name
