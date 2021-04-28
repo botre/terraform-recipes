@@ -63,14 +63,14 @@ resource "aws_budgets_budget" "budget" {
 ```bash
 #!/bin/bash
 
-BUCKET_NAME=terraform-state
-BUCKET_REGION=eu-west-1
+BUCKET_NAME = terraform-state
+BUCKET_REGION =eu-west-1
 
 echo Creating bucket
 aws s3 mb s3://$BUCKET_NAME --region "$BUCKET_REGION"
 
 echo Enabling versioning
-aws s3api put-bucket-versioning --bucket $BUCKET_NAME --versioning-configuration Status=Enabled
+aws s3api put-bucket-versioning --bucket $BUCKET_NAME --versioning-configuration Status = Enabled
 
 echo Enabling encryption
 aws s3api put-bucket-encryption --bucket $BUCKET_NAME --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'
@@ -119,6 +119,44 @@ provider "aws" {
   profile = "your-named-profile"
   region = "us-east-1"
   alias = "aws-us-east-1"
+}
+```
+
+### Alarm topic
+
+```hcl
+resource "aws_sns_topic" "alarm_topic" {
+  name = "alarm-topic"
+  delivery_policy = <<EOF
+{
+  "http": {
+    "defaultHealthyRetryPolicy": {
+      "minDelayTarget": 20,
+      "maxDelayTarget": 20,
+      "numRetries": 3,
+      "numMaxDelayRetries": 0,
+      "numNoDelayRetries": 0,
+      "numMinDelayRetries": 0,
+      "backoffFunction": "linear"
+    },
+    "disableSubscriptionOverrides": false,
+    "defaultThrottlePolicy": {
+      "maxReceivesPerSecond": 1
+    }
+  }
+}
+EOF
+}
+
+resource "null_resource" "alarm_topic_subscriptions" {
+  triggers = {
+    alarm_topic_arn = aws_sns_topic.alarm_topic.arn
+    alarm_emails = sha1(jsonencode(local.alarm_emails))
+  }
+  count = length(local.alarm_emails)
+  provisioner "local-exec" {
+    command = "aws sns subscribe --topic-arn ${aws_sns_topic.alarm_topic.arn} --protocol email --notification-endpoint ${local.alarm_emails[count.index]} --region ${data.aws_region.current.name} --profile ${local.profile}"
+  }
 }
 ```
 
