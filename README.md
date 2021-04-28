@@ -102,6 +102,7 @@ terraform {
 
 ```hcl
 terraform {
+  required_version = "~> 0.15.0"
   required_providers {
     aws = {
       source = "hashicorp/aws"
@@ -754,19 +755,6 @@ resource "aws_wafv2_web_acl_association" "api_firewall_association" {
 ### Elastic Beanstalk Node.js Single-Instance
 
 ```hcl
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "~> 3.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "eu-west-1"
-}
-
 # S3 bucket to store EB task definitions
 resource "aws_s3_bucket" "eb_task_definitions" {
   bucket = "${var.application_name}-eb-task-definitions"
