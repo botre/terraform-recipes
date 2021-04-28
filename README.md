@@ -649,7 +649,6 @@ EOF
 resource "aws_iam_role_policy" "api_gateway_cloudwatch_role_policy" {
   name = "default"
   role = aws_iam_role.api_gateway_cloudwatch_role.id
-
   policy = <<EOF
 {
     "Version": "2012-10-17",
