@@ -104,8 +104,8 @@ terraform {
 terraform {
   required_providers {
     aws = {
-      version = "~> 3.0"
       source = "hashicorp/aws"
+      version = "~> 3.0"
     }
   }
 }
@@ -705,8 +705,8 @@ resource "aws_wafv2_web_acl_association" "api_firewall_association" {
 terraform {
   required_providers {
     aws = {
-      version = "~> 3.0"
       source = "hashicorp/aws"
+      version = "~> 3.0"
     }
   }
 }
