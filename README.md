@@ -30,10 +30,15 @@ output "caller_user" {
 data "aws_region" "current" {}
 ```
 
-### Save output to JSON
+### Apply and save output to JSON
 
 ```bash
-terraform output -json > infrastructure.json
+#!/bin/bash
+
+set -e
+
+terraform apply
+terraform output -json > ../infrastructure.json
 ```
 
 ### Monthly budget alert
@@ -63,8 +68,8 @@ resource "aws_budgets_budget" "budget" {
 ```bash
 #!/bin/bash
 
-BUCKET_NAME = terraform-state
-BUCKET_REGION =eu-west-1
+BUCKET_NAME=terraform-state
+BUCKET_REGION=eu-west-1
 
 echo Creating bucket
 aws s3 mb s3://$BUCKET_NAME --region "$BUCKET_REGION"
@@ -257,8 +262,8 @@ module "s3_cloudfront_website" {
     aws_route53_zone.hosted_zone,
     module.certificate]
   source = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-website"
-  hosted_zone_name = local.hosted_zone_name
-  certificate_domain_name = local.certificate_domain_name
+  hosted_zone_name = aws_route53_zone.hosted_zone.name
+  certificate_domain_name = module.certificate.certificate_domain_name
   bucket_name = local.bucket_name
   record_aliases = local.record_aliases
   providers = {
