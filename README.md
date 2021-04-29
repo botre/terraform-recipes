@@ -28,8 +28,11 @@ output "caller_user" {
 
 ```hcl
 data "aws_region" "current" {}
-```
 
+output "region" {
+  value = data.aws_region.current.name
+}
+```
 ### Apply and save output to JSON
 
 ```bash
