@@ -11,6 +11,10 @@
 * providers.tf
 * variables.tf
 
+## .gitignore
+
+* .terraform
+
 ### Get caller identity
 
 ```bash
