@@ -80,6 +80,31 @@ resource "aws_budgets_budget" "budget" {
 }
 ```
 
+### Providers setup
+
+```hcl
+terraform {
+  required_version = "~> 0.15.0"
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "aws" {
+  profile = "your-named-profile"
+  region = "eu-west-1"
+}
+
+provider "aws" {
+  profile = "your-named-profile"
+  region = "us-east-1"
+  alias = "aws-us-east-1"
+}
+```
+
 ### State bucket
 
 ```bash
@@ -117,31 +142,6 @@ terraform {
     bucket = "terraform-state"
     key = "project-key"
   }
-}
-```
-
-### Providers setup
-
-```hcl
-terraform {
-  required_version = "~> 0.15.0"
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "~> 3.0"
-    }
-  }
-}
-
-provider "aws" {
-  profile = "your-named-profile"
-  region = "eu-west-1"
-}
-
-provider "aws" {
-  profile = "your-named-profile"
-  region = "us-east-1"
-  alias = "aws-us-east-1"
 }
 ```
 
