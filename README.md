@@ -2,6 +2,15 @@
 
 ## AWS
 
+## File naming convention
+
+* data.tf
+* locals.tf
+* main.tf
+* outputs.tf
+* providers.tf
+* variables.tf
+
 ### Get caller identity
 
 ```bash
