@@ -293,6 +293,8 @@ module "s3_cloudfront_website" {
 }
 ```
 
+Deploy test file to S3:
+
 ```bash
 #!/bin/bash
 
@@ -301,6 +303,8 @@ BUCKET_NAME=test-bucket
 aws s3 rm s3://$BUCKET_NAME --recursive
 echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3://$BUCKET_NAME/index.html --content-type text/html
 ```
+
+Deploy:
 
 ```bash
 #!/bin/bash
