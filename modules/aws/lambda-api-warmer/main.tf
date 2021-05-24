@@ -71,8 +71,6 @@ resource "aws_lambda_function" "function" {
 }
 
 module "trigger" {
-  depends_on = [
-    aws_lambda_function.function]
   source = "../lambda-scheduled-trigger"
   function_name = aws_lambda_function.function.function_name
   rule_name = "${var.name}-trigger"
