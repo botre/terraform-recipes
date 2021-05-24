@@ -55,8 +55,6 @@ module "role" {
 }
 
 module "logging_policy" {
-  depends_on = [
-    module.role]
   source = "../iam-logging-policy"
   role_name = module.role.role_name
 }
