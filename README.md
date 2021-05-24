@@ -46,6 +46,7 @@ output "region" {
   value = data.aws_region.current.name
 }
 ```
+
 ### Apply and save output to JSON
 
 ```bash
@@ -217,8 +218,6 @@ locals {
 }
 
 module "certificate" {
-  depends_on = [
-    aws_route53_zone.hosted_zone]
   source = "github.com/botre/terraform-recipes/modules/aws/route-53-hosted-zone-certificate"
   hosted_zone_name = aws_route53_zone.hosted_zone.name
   certificate_domain_name = aws_route53_zone.hosted_zone.name
@@ -279,9 +278,6 @@ locals {
 }
 
 module "s3_cloudfront_website" {
-  depends_on = [
-    aws_route53_zone.hosted_zone,
-    module.certificate]
   source = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-website"
   hosted_zone_name = aws_route53_zone.hosted_zone.name
   certificate_domain_name = module.certificate.certificate_domain_name
@@ -316,8 +312,6 @@ aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_ID" --delete --acl public-read --r
 
 ```hcl
 module "ses_domain" {
-  depends_on = [
-    aws_route53_zone.hosted_zone]
   source = "github.com/botre/terraform-recipes/modules/aws/ses-domain"
   hosted_zone_name = aws_route53_zone.hosted_zone.name
   email_domain_name = aws_route53_zone.hosted_zone.name
@@ -387,8 +381,6 @@ resource "aws_lambda_function" "function" {
 
 ```hcl
 resource "aws_iam_role_policy_attachment" "xray_policy" {
-  depends_on = [
-    module.role]
   role = module.role.role_name
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
 }
@@ -552,8 +544,6 @@ aws lambda update-alias --function-name "$FUNCTION" --name "$ALIAS" --function-v
 
 ```hcl
 module "api_gateway_trigger" {
-  depends_on = [
-    aws_lambda_function.function]
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
   function_name = aws_lambda_function.function.function_name
 }
@@ -564,8 +554,6 @@ published alias version instead of the $LATEST version.
 
 ```hcl
 module "api_gateway_trigger" {
-  depends_on = [
-    aws_lambda_function.function]
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
   function_name = aws_lambda_function.function.function_name
   alias_name = aws_lambda_alias.alias.name
@@ -597,8 +585,6 @@ resource "aws_lambda_function" "function" {
 
 ```hcl
 module "scheduled_trigger" {
-  depends_on = [
-    aws_lambda_function.function]
   source = "github.com/botre/terraform-recipes/modules/aws/lambda-scheduled-trigger"
   function_name = aws_lambda_function.function.function_name
   rule_name = "every-five-minutes"
@@ -628,8 +614,6 @@ module "role" {
 }
 
 module "logging_policy" {
-  depends_on = [
-    module.role]
   source = "github.com/botre/terraform-recipes/modules/aws/iam-logging-policy"
   role_name = module.role.role_name
 }
@@ -644,8 +628,6 @@ module "role" {
 }
 
 module "ses_send_policy" {
-  depends_on = [
-    module.role]
   source = "github.com/botre/terraform-recipes/modules/aws/iam-ses-send-policy"
   role_name = module.role.role_name
 }
@@ -716,10 +698,6 @@ locals {
 }
 
 module "custom_domain" {
-  depends_on = [
-    aws_route53_zone.hosted_zone,
-    module.certificate,
-    module.api_gateway_trigger]
   source = "github.com/botre/terraform-recipes/modules/aws/api-gateway-custom-domain"
   hosted_zone_name = aws_route53_zone.hosted_zone.name
   certificate_domain_name = module.certificate.certificate_domain_name
@@ -774,9 +752,6 @@ resource "aws_wafv2_web_acl" "api_firewall" {
 }
 
 resource "aws_wafv2_web_acl_association" "api_firewall_association" {
-  depends_on = [
-    module.api_gateway_trigger,
-    aws_wafv2_web_acl.api_firewall]
   resource_arn = module.api_gateway_trigger.gateway_stage_arn
   web_acl_arn = aws_wafv2_web_acl.api_firewall.arn
 }
