@@ -219,8 +219,7 @@ provider "aws" {
 }
 
 locals {
-  certificate_domain_name = [
-    "test.com"]
+  certificate_domain_name = "test.com"
   certificate_alternate_domain_names = [
     "*.test.com"]
 }
