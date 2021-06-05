@@ -154,6 +154,7 @@ terraform {
 
 ```hcl
 locals {
+  profile = "name-profile",
   alarm_emails = ["example@email.com"]
 }
 
