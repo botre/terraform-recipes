@@ -155,7 +155,8 @@ terraform {
 ```hcl
 locals {
   profile = "name-profile",
-  alarm_emails = ["example@email.com"]
+  alarm_emails = [
+    "example@email.com"]
 }
 
 resource "aws_sns_topic" "alarm_topic" {
@@ -218,6 +219,8 @@ provider "aws" {
 }
 
 locals {
+  certificate_domain_name = [
+    "test.com"]
   certificate_alternate_domain_names = [
     "*.test.com"]
 }
@@ -225,7 +228,7 @@ locals {
 module "certificate" {
   source = "github.com/botre/terraform-recipes/modules/aws/route-53-hosted-zone-certificate"
   hosted_zone_name = aws_route53_zone.hosted_zone.name
-  certificate_domain_name = aws_route53_zone.hosted_zone.name
+  certificate_domain_name = local.certificate_domain_name
   certificate_alternate_domain_names = local.certificate_alternate_domain_names
   providers = {
     aws.aws-us-east-1 = aws.aws-us-east-1
