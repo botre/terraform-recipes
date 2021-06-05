@@ -153,6 +153,10 @@ terraform {
 ### Alarm topic
 
 ```hcl
+locals {
+  alarm_emails = ["example@email.com"]
+}
+
 resource "aws_sns_topic" "alarm_topic" {
   name = "alarm-topic"
   delivery_policy = <<EOF
