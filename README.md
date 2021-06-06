@@ -464,25 +464,23 @@ resource "aws_ecr_repository" "container_repository" {
 
 resource "aws_ecr_lifecycle_policy" "ecr_policy" {
   repository = aws_ecr_repository.container_repository.name
-  policy = <<EOF
-{
+  policy = jsonencode({
     "rules": [
-        {
-            "rulePriority": 1,
-            "description": "Expire untagged images older than 14 days",
-            "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 14
-            },
-            "action": {
-                "type": "expire"
-            }
+      {
+        rulePriority: 1,
+        description: "Expire untagged images older than 14 days",
+        selection: {
+          "tagStatus": "untagged",
+          "countType": "sinceImagePushed",
+          "countUnit": "days",
+          "countNumber": 14
+        },
+        action: {
+          "type": "expire"
         }
+      }
     ]
-}
-EOF
+  })
 }
 ```
 
