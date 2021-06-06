@@ -620,14 +620,26 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
 ### IAM logging policy
 
 ```hcl
-module "role" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-iam-role"
-  prefix = "project"
+resource "aws_iam_policy" "logging_policy" {
+  name = "logging-policy"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        Action: [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Effect: "Allow",
+        Resource: "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
 }
 
-module "logging_policy" {
-  source = "github.com/botre/terraform-recipes/modules/aws/iam-logging-policy"
-  role_name = module.role.role_name
+resource "aws_iam_role_policy_attachment" "logging_policy_attachment" {
+  role = aws_iam_role.role.name
+  policy_arn = aws_iam_policy.logging_policy.arn
 }
 ```
 
