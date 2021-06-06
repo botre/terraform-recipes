@@ -499,7 +499,7 @@ resource "aws_lambda_function" "function" {
 ```
 
 ```dockerfile
-FROM node:12-alpine as build-image
+FROM node:14-alpine as build-image
 WORKDIR /application/
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -507,7 +507,7 @@ COPY ./src ./src
 RUN npm ci
 RUN npx tsc
 
-FROM public.ecr.aws/lambda/nodejs:12
+FROM public.ecr.aws/lambda/nodejs:14
 COPY package*.json ./
 COPY .env* ./
 COPY --from=build-image ./application/dist ./dist
@@ -950,7 +950,7 @@ echo "deploy finished ($duration seconds)"
 ```
 
 ```Dockerfile
-FROM node:12-alpine
+FROM node:14-alpine
 
 # Create app directory
 WORKDIR /usr/src/application
