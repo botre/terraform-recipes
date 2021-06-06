@@ -372,13 +372,24 @@ resource "aws_lambda_provisioned_concurrency_config" "function_concurrency" {
 ### Lambda IAM role
 
 ```hcl
-module "role" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-iam-role"
-  prefix = "project"
+resource "aws_iam_role" "role" {
+  name = "function-role"
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        Action: "sts:AssumeRole",
+        Effect: "Allow",
+        Principal: {
+          "Service": "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
 }
 
 resource "aws_lambda_function" "function" {
-  role = module.role.role_arn
+  role = aws_iam_role.role.arn
 }
 ```
 
