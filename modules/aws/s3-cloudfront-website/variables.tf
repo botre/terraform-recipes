@@ -1,8 +1,8 @@
-variable "hosted_zone_name" {
+variable "hosted_zone_id" {
   type = string
 }
 
-variable "certificate_domain_name" {
+variable "certificate_arn" {
   type = string
 }
 

@@ -274,8 +274,6 @@ provider "aws" {
 }
 
 locals {
-  hosted_zone_name = "test.com"
-  certificate_domain_name = "test.com"
   bucket_name = "test-bucket"
   record_aliases = [
     "test.com",
@@ -284,8 +282,8 @@ locals {
 
 module "s3_cloudfront_website" {
   source = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-website"
-  hosted_zone_name = aws_route53_zone.hosted_zone.name
-  certificate_domain_name = module.certificate.certificate_domain_name
+  hosted_zone_id = aws_route53_zone.hosted_zone.id
+  certificate_arn = module.certificate.certificate_arn
   bucket_name = local.bucket_name
   record_aliases = local.record_aliases
   providers = {
