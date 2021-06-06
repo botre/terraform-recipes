@@ -316,7 +316,7 @@ aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_ID" --delete --acl public-read --r
 ```hcl
 module "ses_domain" {
   source = "github.com/botre/terraform-recipes/modules/aws/ses-domain"
-  hosted_zone_name = aws_route53_zone.hosted_zone.name
+  hosted_zone_id = aws_route53_zone.hosted_zone.id
   email_domain_name = aws_route53_zone.hosted_zone.name
 }
 ```
