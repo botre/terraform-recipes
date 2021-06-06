@@ -634,14 +634,26 @@ module "logging_policy" {
 ### IAM SES send policy
 
 ```hcl
-module "role" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-iam-role"
-  prefix = "project"
+resource "aws_iam_policy" "ses_policy" {
+  name = "ses-policy"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        Action: [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ],
+        Effect: "Allow",
+        Resource: "*"
+      }
+    ]
+  })
 }
 
-module "ses_send_policy" {
-  source = "github.com/botre/terraform-recipes/modules/aws/iam-ses-send-policy"
-  role_name = module.role.role_name
+resource "aws_iam_role_policy_attachment" "ses_policy_attachment" {
+  role = aws_iam_role.role.name
+  policy_arn = aws_iam_policy.ses_policy.arn
 }
 ```
 
