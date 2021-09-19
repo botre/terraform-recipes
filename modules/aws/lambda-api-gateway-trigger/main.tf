@@ -36,8 +36,7 @@ resource "aws_api_gateway_method" "gateway_root_method" {
   authorization = "NONE"
 }
 
-// TODO: a better name would be "gateway_any_integration"
-resource "aws_api_gateway_integration" "gateway_proxy_integration" {
+resource "aws_api_gateway_integration" "gateway_any_integration" {
   rest_api_id             = aws_api_gateway_rest_api.gateway_rest_api.id
   resource_id             = aws_api_gateway_method.gateway_any_method.resource_id
   http_method             = aws_api_gateway_method.gateway_any_method.http_method
@@ -62,7 +61,7 @@ resource "aws_api_gateway_deployment" "gateway_deployment" {
       local.uri,
       aws_api_gateway_method.gateway_any_method.id,
       aws_api_gateway_method.gateway_root_method.id,
-      aws_api_gateway_integration.gateway_proxy_integration.id,
+      aws_api_gateway_integration.gateway_any_integration.id,
       aws_api_gateway_integration.gateway_root_integration.id,
     ]))
   }
