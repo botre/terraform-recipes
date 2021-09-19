@@ -512,7 +512,7 @@ COPY ./src ./src
 RUN npm ci
 RUN npx tsc
 
-FROM public.ecr.aws/lambda/nodejs:14
+FROM public.ecr.aws/lambda/nodejs:12
 COPY package*.json ./
 COPY .env* ./
 COPY --from=build-image ./application/dist ./dist
