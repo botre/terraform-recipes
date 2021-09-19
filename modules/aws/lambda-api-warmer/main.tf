@@ -50,7 +50,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
 }
 
 resource "aws_iam_role" "role" {
-  name               = "function-role"
+  name               = "${var.name}-role"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -66,7 +66,7 @@ resource "aws_iam_role" "role" {
 }
 
 resource "aws_iam_policy" "logging_policy" {
-  name   = "logging-policy"
+  name   = "${var.name}-logging-policy"
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
