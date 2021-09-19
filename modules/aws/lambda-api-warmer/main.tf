@@ -100,6 +100,7 @@ resource "aws_lambda_function" "function" {
 
 module "trigger" {
   source                   = "../lambda-scheduled-trigger"
+  function_arn             = aws_lambda_function.function.arn
   function_name            = aws_lambda_function.function.function_name
   rule_name                = "${var.name}-trigger"
   rule_description         = "${var.name}-trigger"

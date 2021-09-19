@@ -602,7 +602,7 @@ resource "aws_lambda_function" "function" {
 ```hcl
 module "scheduled_trigger" {
   source                   = "github.com/botre/terraform-recipes/modules/aws/lambda-scheduled-trigger"
-  function_arn             = aws_lambda_function.function.function_arn
+  function_arn             = aws_lambda_function.function.arn
   function_name            = aws_lambda_function.function.function_name
   rule_name                = "every-five-minutes"
   rule_description         = "Fires every 5 minutes"
