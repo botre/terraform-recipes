@@ -600,7 +600,7 @@ resource "aws_lambda_function" "function" {
 ### Lambda scheduled trigger
 
 ```hcl
-module "scheduled_trigger" {s
+module "scheduled_trigger" {
   source                   = "github.com/botre/terraform-recipes/modules/aws/lambda-scheduled-trigger"
   function_arn             = aws_lambda_function.function.function_arn
   function_name            = aws_lambda_function.function.function_name
