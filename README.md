@@ -638,7 +638,7 @@ resource "aws_iam_policy" "logging_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "logging_policy_attachment" {
-  role = aws_iam_role.role.name
+  role = aws_iam_role.role.id
   policy_arn = aws_iam_policy.logging_policy.arn
 }
 ```
@@ -664,7 +664,7 @@ resource "aws_iam_policy" "ses_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "ses_policy_attachment" {
-  role = aws_iam_role.role.name
+  role = aws_iam_role.role.id
   policy_arn = aws_iam_policy.ses_policy.arn
 }
 ```
@@ -810,7 +810,7 @@ resource "aws_ecr_repository" "container_repository" {
 # EB instance profile
 resource "aws_iam_instance_profile" "eb_instance_profile" {
   name = "${var.application_name}-eb-instance-profile"
-  role = aws_iam_role.eb_instance_role.name
+  role = aws_iam_role.eb_instance_role.id
 }
 
 resource "aws_iam_role" "eb_instance_role" {

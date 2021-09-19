@@ -83,7 +83,7 @@ resource "aws_iam_policy" "logging_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "logging_policy_attachment" {
-  role       = aws_iam_role.role.name
+  role       = aws_iam_role.role.id
   policy_arn = aws_iam_policy.logging_policy.arn
 }
 
