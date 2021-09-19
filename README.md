@@ -62,24 +62,25 @@ terraform output -json > ../infrastructure.json
 
 ```hcl
 locals {
-  monthly_budget = "50.0"
+  monthly_budget              = "50.0"
   monthly_budget_alert_emails = [
-    "example@email.com"]
+    "example@email.com"
+  ]
 }
 
 resource "aws_budgets_budget" "budget" {
-  name = "budget"
-  budget_type = "COST"
-  limit_amount = local.monthly_budget
-  limit_unit = "USD"
+  name              = "budget"
+  budget_type       = "COST"
+  limit_amount      = local.monthly_budget
+  limit_unit        = "USD"
   time_period_start = "2020-01-01_00:00"
-  time_period_end = "2085-01-01_00:00"
-  time_unit = "MONTHLY"
+  time_period_end   = "2085-01-01_00:00"
+  time_unit         = "MONTHLY"
   notification {
-    comparison_operator = "GREATER_THAN"
-    threshold = 100
-    threshold_type = "PERCENTAGE"
-    notification_type = "FORECASTED"
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 100
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "FORECASTED"
     subscriber_email_addresses = local.monthly_budget_alert_emails
   }
 }
@@ -92,7 +93,7 @@ terraform {
   required_version = "~> 0.15.0"
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 3.0"
     }
   }
@@ -100,13 +101,13 @@ terraform {
 
 provider "aws" {
   profile = "your-named-profile"
-  region = "eu-west-1"
+  region  = "eu-west-1"
 }
 
 provider "aws" {
   profile = "your-named-profile"
-  region = "us-east-1"
-  alias = "aws-us-east-1"
+  region  = "us-east-1"
+  alias   = "aws-us-east-1"
 }
 ```
 
@@ -143,9 +144,9 @@ export AWS_PROFILE=your-named-profile
 terraform {
   backend "s3" {
     profile = "your-named-profile"
-    region = "eu-west-1"
-    bucket = "terraform-state"
-    key = "project-key"
+    region  = "eu-west-1"
+    bucket  = "terraform-state"
+    key     = "project-key"
   }
 }
 ```
@@ -154,27 +155,28 @@ terraform {
 
 ```hcl
 locals {
-  profile = "name-profile",
+  profile      = "name-profile",
   alarm_emails = [
-    "example@email.com"]
+    "example@email.com"
+  ]
 }
 
 resource "aws_sns_topic" "alarm_topic" {
-  name = "alarm-topic"
+  name            = "alarm-topic"
   delivery_policy = jsonencode({
-    "http": {
-      "defaultHealthyRetryPolicy": {
-        "minDelayTarget": 20,
-        "maxDelayTarget": 20,
-        "numRetries": 3,
-        "numMaxDelayRetries": 0,
-        "numNoDelayRetries": 0,
-        "numMinDelayRetries": 0,
-        "backoffFunction": "linear"
+    "http" : {
+      "defaultHealthyRetryPolicy" : {
+        "minDelayTarget" : 20,
+        "maxDelayTarget" : 20,
+        "numRetries" : 3,
+        "numMaxDelayRetries" : 0,
+        "numNoDelayRetries" : 0,
+        "numMinDelayRetries" : 0,
+        "backoffFunction" : "linear"
       },
-      "disableSubscriptionOverrides": false,
-      "defaultThrottlePolicy": {
-        "maxReceivesPerSecond": 1
+      "disableSubscriptionOverrides" : false,
+      "defaultThrottlePolicy" : {
+        "maxReceivesPerSecond" : 1
       }
     }
   })
@@ -183,9 +185,9 @@ resource "aws_sns_topic" "alarm_topic" {
 resource "null_resource" "alarm_topic_subscriptions" {
   triggers = {
     alarm_topic_arn = aws_sns_topic.alarm_topic.arn
-    alarm_emails = sha1(jsonencode(local.alarm_emails))
+    alarm_emails    = sha1(jsonencode(local.alarm_emails))
   }
-  count = length(local.alarm_emails)
+  count    = length(local.alarm_emails)
   provisioner "local-exec" {
     command = "aws sns subscribe --topic-arn ${aws_sns_topic.alarm_topic.arn} --protocol email --notification-endpoint ${local.alarm_emails[count.index]} --region ${data.aws_region.current.name} --profile ${local.profile}"
   }
@@ -213,21 +215,22 @@ output "name_servers" {
 ```hcl
 provider "aws" {
   region = "us-east-1"
-  alias = "aws-us-east-1"
+  alias  = "aws-us-east-1"
 }
 
 locals {
-  certificate_domain_name = "test.com"
+  certificate_domain_name            = "test.com"
   certificate_alternate_domain_names = [
-    "*.test.com"]
+    "*.test.com"
+  ]
 }
 
 module "certificate" {
-  source = "github.com/botre/terraform-recipes/modules/aws/route-53-hosted-zone-certificate"
-  hosted_zone_id = aws_route53_zone.hosted_zone.id
-  certificate_domain_name = local.certificate_domain_name
+  source                             = "github.com/botre/terraform-recipes/modules/aws/route-53-hosted-zone-certificate"
+  hosted_zone_id                     = aws_route53_zone.hosted_zone.id
+  certificate_domain_name            = local.certificate_domain_name
   certificate_alternate_domain_names = local.certificate_alternate_domain_names
-  providers = {
+  providers                          = {
     aws.aws-us-east-1 = aws.aws-us-east-1
   }
 }
@@ -238,9 +241,9 @@ module "certificate" {
 ```hcl
 resource "aws_route53_record" "route_53_root_txt" {
   zone_id = aws_route53_zone.hosted_zone.id
-  name = ""
-  type = "TXT"
-  ttl = "300"
+  name    = ""
+  type    = "TXT"
+  ttl     = "300"
   records = [
     "service-a=service-a-secret",
     "service-b=service-b-secret",
@@ -254,9 +257,9 @@ resource "aws_route53_record" "route_53_root_txt" {
 ```hcl
 resource "aws_route53_record" "route_53_root_mx" {
   zone_id = aws_route53_zone.hosted_zone.id
-  name = ""
-  type = "MX"
-  ttl = "300"
+  name    = ""
+  type    = "MX"
+  ttl     = "300"
   records = [
     "1 MX.EXAMPLE.COM.",
     "5 MX.EXAMPLE.COM.",
@@ -270,23 +273,24 @@ resource "aws_route53_record" "route_53_root_mx" {
 ```hcl
 provider "aws" {
   region = "us-east-1"
-  alias = "aws-us-east-1"
+  alias  = "aws-us-east-1"
 }
 
 locals {
-  bucket_name = "test-bucket"
+  bucket_name    = "test-bucket"
   record_aliases = [
     "test.com",
-    "www.test.com"]
+    "www.test.com"
+  ]
 }
 
 module "s3_cloudfront_website" {
-  source = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-website"
-  hosted_zone_id = aws_route53_zone.hosted_zone.id
+  source          = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-website"
+  hosted_zone_id  = aws_route53_zone.hosted_zone.id
   certificate_arn = module.certificate.certificate_arn
-  bucket_name = local.bucket_name
-  record_aliases = local.record_aliases
-  providers = {
+  bucket_name     = local.bucket_name
+  record_aliases  = local.record_aliases
+  providers       = {
     aws.aws-us-east-1 = aws.aws-us-east-1
   }
 }
@@ -315,8 +319,8 @@ aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_ID" --delete --acl public-read --r
 
 ```hcl
 module "ses_domain" {
-  source = "github.com/botre/terraform-recipes/modules/aws/ses-domain"
-  hosted_zone_id = aws_route53_zone.hosted_zone.id
+  source            = "github.com/botre/terraform-recipes/modules/aws/ses-domain"
+  hosted_zone_id    = aws_route53_zone.hosted_zone.id
   email_domain_name = aws_route53_zone.hosted_zone.name
 }
 ```
@@ -325,10 +329,10 @@ module "ses_domain" {
 
 ```hcl
 module "lambda_warmer" {
-  source = "Nuagic/lambda-warmer/aws"
-  version = "~> 3.0"
+  source        = "Nuagic/lambda-warmer/aws"
+  version       = "~> 3.0"
   function_name = aws_lambda_function.function.function_name
-  function_arn = aws_lambda_function.function.arn
+  function_arn  = aws_lambda_function.function.arn
 }
 ```
 
@@ -340,10 +344,10 @@ Do not use the /ping and /sping paths, they are reserved for API Gateway service
 
 ```hcl
 module "lambda_api_warmer" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-warmer"
-  name = "api-warmer"
+  source   = "github.com/botre/terraform-recipes/modules/aws/lambda-api-warmer"
+  name     = "api-warmer"
   hostname = "api.domain.com"
-  path = "/"
+  path     = "/"
 }
 ```
 
@@ -351,8 +355,8 @@ module "lambda_api_warmer" {
 
 ```hcl
 resource "aws_lambda_alias" "function_alias" {
-  name = local.function_alias
-  function_name = aws_lambda_function.function.function_name
+  name             = local.function_alias
+  function_name    = aws_lambda_function.function.function_name
   function_version = aws_lambda_function.function.version
 }
 ```
@@ -361,9 +365,9 @@ resource "aws_lambda_alias" "function_alias" {
 
 ```hcl
 resource "aws_lambda_provisioned_concurrency_config" "function_concurrency" {
-  function_name = aws_lambda_function.function.function_name
+  function_name                     = aws_lambda_function.function.function_name
   provisioned_concurrent_executions = local.function_provisioned_concurrency
-  qualifier = aws_lambda_alias.function_alias.name
+  qualifier                         = aws_lambda_alias.function_alias.name
 }
 ```
 
@@ -371,15 +375,15 @@ resource "aws_lambda_provisioned_concurrency_config" "function_concurrency" {
 
 ```hcl
 resource "aws_iam_role" "role" {
-  name = "function-role"
+  name               = "function-role"
   assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        Action: "sts:AssumeRole",
-        Effect: "Allow",
-        Principal: {
-          "Service": "lambda.amazonaws.com"
+        Action : "sts:AssumeRole",
+        Effect : "Allow",
+        Principal : {
+          "Service" : "lambda.amazonaws.com"
         }
       }
     ]
@@ -395,12 +399,12 @@ resource "aws_lambda_function" "function" {
 
 ```hcl
 resource "aws_iam_role_policy_attachment" "xray_policy" {
-  role = module.role.role_name
+  role       = aws_iam_role.role.id
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
 }
 
 resource "aws_lambda_function" "function" {
-  role = module.role.role_arn
+  role = aws_iam_role.role.id
   tracing_config {
     mode = "Active"
   }
@@ -411,26 +415,26 @@ resource "aws_lambda_function" "function" {
 
 ```hcl
 locals {
-  function_name = "test-function"
-  handler_file_name = "main"
-  handler_function_name = "handler"
+  function_name          = "test-function"
+  handler_file_name      = "main"
+  handler_function_name  = "handler"
   deployment_bucket_name = "deployments"
-  deployment_object_key = "deployment.zip"
+  deployment_object_key  = "deployment.zip"
 }
 
 module "deployment" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-s3-deployment"
+  source                 = "github.com/botre/terraform-recipes/modules/aws/lambda-s3-deployment"
   deployment_bucket_name = local.deployment_bucket_name
-  deployment_object_key = local.deployment_object_key
-  handler_file_name = local.handler_file_name
-  handler_function_name = local.handler_function_name
+  deployment_object_key  = local.deployment_object_key
+  handler_file_name      = local.handler_file_name
+  handler_function_name  = local.handler_function_name
 }
 
 resource "aws_lambda_function" "function" {
   function_name = local.function_name
-  s3_bucket = module.deployment.deployment_bucket_id
-  s3_key = module.deployment.deployment_object_key
-  handler = "${local.handler_file_name}.${local.function_name}"
+  s3_bucket     = module.deployment.deployment_bucket_id
+  s3_key        = module.deployment.deployment_object_key
+  handler       = "${local.handler_file_name}.${local.function_name}"
 }
 ```
 
@@ -473,19 +477,19 @@ resource "aws_ecr_repository" "container_repository" {
 
 resource "aws_ecr_lifecycle_policy" "ecr_policy" {
   repository = aws_ecr_repository.container_repository.name
-  policy = jsonencode({
-    "rules": [
+  policy     = jsonencode({
+    "rules" : [
       {
-        rulePriority: 1,
-        description: "Expire untagged images older than 14 days",
-        selection: {
-          "tagStatus": "untagged",
-          "countType": "sinceImagePushed",
-          "countUnit": "days",
-          "countNumber": 14
+        rulePriority : 1,
+        description : "Expire untagged images older than 14 days",
+        selection : {
+          "tagStatus" : "untagged",
+          "countType" : "sinceImagePushed",
+          "countUnit" : "days",
+          "countNumber" : 14
         },
-        action: {
-          "type": "expire"
+        action : {
+          "type" : "expire"
         }
       }
     ]
@@ -496,10 +500,10 @@ resource "aws_ecr_lifecycle_policy" "ecr_policy" {
 ```hcl
 resource "aws_lambda_function" "function" {
   function_name = local.function_name
-  image_uri = "${aws_ecr_repository.container_repository.repository_url}:latest"
-  package_type = "Image"
-  memory_size = 256
-  timeout = 6
+  image_uri     = "${aws_ecr_repository.container_repository.repository_url}:latest"
+  package_type  = "Image"
+  memory_size   = 256
+  timeout       = 6
 }
 ```
 
@@ -556,7 +560,7 @@ aws lambda update-alias --function-name "$FUNCTION" --name "$ALIAS" --function-v
 
 ```hcl
 module "api_gateway_trigger" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
+  source        = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
   function_name = aws_lambda_function.function.function_name
 }
 ```
@@ -566,9 +570,9 @@ published alias version instead of the $LATEST version.
 
 ```hcl
 module "api_gateway_trigger" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
+  source        = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
   function_name = aws_lambda_function.function.function_name
-  alias_name = aws_lambda_alias.alias.name
+  alias_name    = aws_lambda_alias.alias.name
 }
 ```
 
@@ -597,10 +601,10 @@ resource "aws_lambda_function" "function" {
 
 ```hcl
 module "scheduled_trigger" {
-  source = "github.com/botre/terraform-recipes/modules/aws/lambda-scheduled-trigger"
-  function_name = aws_lambda_function.function.function_name
-  rule_name = "every-five-minutes"
-  rule_description = "Fires every 5 minutes"
+  source                   = "github.com/botre/terraform-recipes/modules/aws/lambda-scheduled-trigger"
+  function_name            = aws_lambda_function.function.function_name
+  rule_name                = "every-five-minutes"
+  rule_description         = "Fires every 5 minutes"
   rule_schedule_expression = "rate(5 minutes)"
 }
 ```
@@ -609,7 +613,7 @@ module "scheduled_trigger" {
 
 ```hcl
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
-  name = "/aws/lambda/${aws_lambda_function.function.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.function.function_name}"
   retention_in_days = 7
   lifecycle {
     prevent_destroy = false
@@ -621,24 +625,24 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
 
 ```hcl
 resource "aws_iam_policy" "logging_policy" {
-  name = "logging-policy"
+  name   = "logging-policy"
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        Action: [
+        Action : [
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ],
-        Effect: "Allow",
-        Resource: "arn:aws:logs:*:*:*"
+        Effect : "Allow",
+        Resource : "arn:aws:logs:*:*:*"
       }
     ]
   })
 }
 
 resource "aws_iam_role_policy_attachment" "logging_policy_attachment" {
-  role = aws_iam_role.role.id
+  role       = aws_iam_role.role.id
   policy_arn = aws_iam_policy.logging_policy.arn
 }
 ```
@@ -647,24 +651,24 @@ resource "aws_iam_role_policy_attachment" "logging_policy_attachment" {
 
 ```hcl
 resource "aws_iam_policy" "ses_policy" {
-  name = "ses-policy"
+  name   = "ses-policy"
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        Action: [
+        Action : [
           "ses:SendEmail",
           "ses:SendRawEmail"
         ],
-        Effect: "Allow",
-        Resource: "*"
+        Effect : "Allow",
+        Resource : "*"
       }
     ]
   })
 }
 
 resource "aws_iam_role_policy_attachment" "ses_policy_attachment" {
-  role = aws_iam_role.role.id
+  role       = aws_iam_role.role.id
   policy_arn = aws_iam_policy.ses_policy.arn
 }
 ```
@@ -677,7 +681,7 @@ resource "aws_api_gateway_account" "api_gateway_account" {
 }
 
 resource "aws_iam_role" "api_gateway_cloudwatch_role" {
-  name = "api-gateway-cloudwatch-global"
+  name               = "api-gateway-cloudwatch-global"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -696,8 +700,8 @@ EOF
 }
 
 resource "aws_iam_role_policy" "api_gateway_cloudwatch_role_policy" {
-  name = "default"
-  role = aws_iam_role.api_gateway_cloudwatch_role.id
+  name   = "default"
+  role   = aws_iam_role.api_gateway_cloudwatch_role.id
   policy = <<EOF
 {
     "Version": "2012-10-17",
@@ -726,7 +730,7 @@ EOF
 ```hcl
 provider "aws" {
   region = "us-east-1"
-  alias = "aws-us-east-1"
+  alias  = "aws-us-east-1"
 }
 
 locals {
@@ -734,13 +738,13 @@ locals {
 }
 
 module "custom_domain" {
-  source = "github.com/botre/terraform-recipes/modules/aws/api-gateway-custom-domain"
-  hosted_zone_id = aws_route53_zone.hosted_zone.id
-  certificate_arn = module.certificate.certificate_arn
-  domain_name = local.api_domain_name
-  gateway_rest_api_id = module.api_gateway_trigger.gateway_rest_api_id
+  source                        = "github.com/botre/terraform-recipes/modules/aws/api-gateway-custom-domain"
+  hosted_zone_id                = aws_route53_zone.hosted_zone.id
+  certificate_arn               = module.certificate.certificate_arn
+  domain_name                   = local.api_domain_name
+  gateway_rest_api_id           = module.api_gateway_trigger.gateway_rest_api_id
   gateway_deployment_stage_name = module.api_gateway_trigger.gateway_deployment_stage_name
-  providers = {
+  providers                     = {
     aws.aws-us-east-1 = aws.aws-us-east-1
   }
 }
@@ -759,7 +763,7 @@ resource "aws_wafv2_web_acl" "api_firewall" {
   }
 
   rule {
-    name = "ip-rate-limit"
+    name     = "ip-rate-limit"
     priority = 1
 
     action {
@@ -768,28 +772,28 @@ resource "aws_wafv2_web_acl" "api_firewall" {
 
     statement {
       rate_based_statement {
-        limit = 300
+        limit              = 300
         aggregate_key_type = "IP"
       }
     }
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name = "RateLimitedIP"
-      sampled_requests_enabled = true
+      metric_name                = "RateLimitedIP"
+      sampled_requests_enabled   = true
     }
   }
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name = "Allowed"
-    sampled_requests_enabled = true
+    metric_name                = "Allowed"
+    sampled_requests_enabled   = true
   }
 }
 
 resource "aws_wafv2_web_acl_association" "api_firewall_association" {
   resource_arn = module.api_gateway_trigger.gateway_stage_arn
-  web_acl_arn = aws_wafv2_web_acl.api_firewall.arn
+  web_acl_arn  = aws_wafv2_web_acl.api_firewall.arn
 }
 ```
 
@@ -798,7 +802,7 @@ resource "aws_wafv2_web_acl_association" "api_firewall_association" {
 ```hcl
 # S3 bucket to store EB task definitions
 resource "aws_s3_bucket" "eb_task_definitions" {
-  bucket = "${var.application_name}-eb-task-definitions"
+  bucket        = "${var.application_name}-eb-task-definitions"
   force_destroy = true
 }
 
@@ -814,7 +818,7 @@ resource "aws_iam_instance_profile" "eb_instance_profile" {
 }
 
 resource "aws_iam_role" "eb_instance_role" {
-  name = "${var.application_name}-eb-instance-role"
+  name               = "${var.application_name}-eb-instance-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -835,8 +839,8 @@ EOF
 # EB instance policy
 # Overriding because by default Beanstalk does not have a permission to Read ECR
 resource "aws_iam_role_policy" "eb_instance_policy" {
-  name = "${var.application_name}-eb-instance-policy"
-  role = aws_iam_role.eb_instance_role.id
+  name   = "${var.application_name}-eb-instance-policy"
+  role   = aws_iam_role.eb_instance_role.id
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -870,39 +874,39 @@ EOF
 
 # EB application
 resource "aws_elastic_beanstalk_application" "eb_application" {
-  name = var.application_name
+  name        = var.application_name
   description = var.application_description
 }
 
 # EB environment
 resource "aws_elastic_beanstalk_environment" "eb_environment" {
-  name = "${var.application_name}-${var.application_environment}"
-  application = aws_elastic_beanstalk_application.eb_application.name
+  name                = "${var.application_name}-${var.application_environment}"
+  application         = aws_elastic_beanstalk_application.eb_application.name
   solution_stack_name = "64bit Amazon Linux 2018.03 v2.15.1 running Docker 19.03.6-ce"
-  tier = "WebServer"
+  tier                = "WebServer"
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
-    name = "InstanceType"
-    value = "t2.micro"
+    name      = "InstanceType"
+    value     = "t2.micro"
   }
 
   setting {
     namespace = "aws:elasticbeanstalk:environment"
-    name = "EnvironmentType"
-    value = "SingleInstance"
+    name      = "EnvironmentType"
+    value     = "SingleInstance"
   }
 
   setting {
     namespace = "aws:autoscaling:asg"
-    name = "MaxSize"
-    value = "1"
+    name      = "MaxSize"
+    value     = "1"
   }
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
-    name = "IamInstanceProfile"
-    value = aws_iam_instance_profile.eb_instance_profile.name
+    name      = "IamInstanceProfile"
+    value     = aws_iam_instance_profile.eb_instance_profile.name
   }
 }
 ```
