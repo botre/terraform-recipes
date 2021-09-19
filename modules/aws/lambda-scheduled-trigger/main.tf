@@ -7,13 +7,13 @@ resource "aws_cloudwatch_event_rule" "rule" {
 resource "aws_cloudwatch_event_target" "target" {
   rule      = aws_cloudwatch_event_rule.rule.name
   target_id = "lambda"
-  arn       = data.aws_lambda_function.function.arn
+  arn       = var.function_arn
 }
 
 resource "aws_lambda_permission" "permission" {
   statement_id  = "cloud-watch-${var.rule_name}"
   action        = "lambda:InvokeFunction"
-  function_name = data.aws_lambda_function.function.function_name
+  function_name = var.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.rule.arn
 }
