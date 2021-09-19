@@ -1,3 +1,7 @@
+output "gateway_rest_api_id" {
+  value = aws_api_gateway_rest_api.gateway_rest_api.id
+}
+
 output "gateway_rest_api_name" {
   value = aws_api_gateway_rest_api.gateway_rest_api.name
 }

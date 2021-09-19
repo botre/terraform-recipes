@@ -1,4 +1,4 @@
-variable "hosted_zone_name" {
+variable "hosted_zone_id" {
   type = string
 }
 
@@ -10,7 +10,7 @@ variable "domain_name" {
   type = string
 }
 
-variable "gateway_rest_api_name" {
+variable "gateway_rest_api_id" {
   type = string
 }
 
