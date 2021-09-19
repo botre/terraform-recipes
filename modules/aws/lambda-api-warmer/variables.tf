@@ -3,7 +3,7 @@ variable "name" {
 }
 
 variable "protocol" {
-  type = string
+  type    = string
   default = "https"
 }
 
@@ -16,11 +16,11 @@ variable "path" {
 }
 
 variable "timeout" {
-  type = number
+  type    = number
   default = 10
 }
 
 variable "rate" {
-  type = string
+  type    = string
   default = "rate(4 minutes)"
 }
