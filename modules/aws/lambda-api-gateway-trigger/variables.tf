@@ -1,5 +1,5 @@
 variable "stage_name" {
-  type = string
+  type    = string
   default = "production"
 }
 
@@ -8,6 +8,6 @@ variable "function_name" {
 }
 
 variable "alias_name" {
-  type = string
+  type    = string
   default = ""
 }

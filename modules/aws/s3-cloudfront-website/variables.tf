@@ -15,6 +15,6 @@ variable "record_aliases" {
 }
 
 variable "error_document" {
-  type = string
+  type    = string
   default = "index.html"
 }
