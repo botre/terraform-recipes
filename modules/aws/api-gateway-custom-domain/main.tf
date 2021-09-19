@@ -1,6 +1,6 @@
 resource "aws_api_gateway_domain_name" "custom_domain_name" {
   domain_name     = var.domain_name
-  certificate_arn = data.aws_acm_certificate.certificate.arn
+  certificate_arn = var.certificate_arn
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {

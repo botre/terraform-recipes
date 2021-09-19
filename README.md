@@ -736,7 +736,7 @@ locals {
 module "custom_domain" {
   source = "github.com/botre/terraform-recipes/modules/aws/api-gateway-custom-domain"
   hosted_zone_name = aws_route53_zone.hosted_zone.name
-  certificate_domain_name = module.certificate.certificate_domain_name
+  certificate_arn = module.certificate.certificate_arn
   domain_name = local.api_domain_name
   gateway_rest_api_name = module.api_gateway_trigger.gateway_rest_api_name
   gateway_deployment_stage_name = module.api_gateway_trigger.gateway_deployment_stage_name
