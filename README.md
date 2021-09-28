@@ -155,10 +155,11 @@ terraform {
 
 ```hcl
 locals {
-  profile      = "name-profile",
-  alarm_emails = [
+  profile             = "name-profile",
+  alarm_emails        = [
     "example@email.com"
   ]
+  alarm_phone_numbers = ["+00000000000"]
 }
 
 resource "aws_sns_topic" "alarm_topic" {
@@ -182,7 +183,7 @@ resource "aws_sns_topic" "alarm_topic" {
   })
 }
 
-resource "null_resource" "alarm_topic_subscriptions" {
+resource "null_resource" "alarm_topic_email_subscription" {
   triggers = {
     alarm_topic_arn = aws_sns_topic.alarm_topic.arn
     alarm_emails    = sha1(jsonencode(local.alarm_emails))
@@ -190,6 +191,17 @@ resource "null_resource" "alarm_topic_subscriptions" {
   count    = length(local.alarm_emails)
   provisioner "local-exec" {
     command = "aws sns subscribe --topic-arn ${aws_sns_topic.alarm_topic.arn} --protocol email --notification-endpoint ${local.alarm_emails[count.index]} --region ${data.aws_region.current.name} --profile ${local.profile}"
+  }
+}
+
+resource "null_resource" "alarm_topic_sms_subscription" {
+  triggers = {
+    alarm_topic_arn     = aws_sns_topic.alarm_topic.arn
+    alarm_phone_numbers = sha1(jsonencode(local.alarm_phone_numbers))
+  }
+  count    = length(local.alarm_phone_numbers)
+  provisioner "local-exec" {
+    command = "aws sns subscribe --topic-arn ${aws_sns_topic.alarm_topic.arn} --protocol sms --notification-endpoint ${local.alarm_phone_numbers[count.index]} --region ${data.aws_region.current.name} --profile ${local.profile}"
   }
 }
 ```
