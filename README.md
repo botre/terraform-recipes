@@ -315,6 +315,53 @@ Deploy:
 aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_ID" --delete --acl public-read --region "$REGION" && aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*" --region "$REGION"
 ```
 
+### S3 + CloudFront CDN
+
+```hcl
+provider "aws" {
+  region = "us-east-1"
+  alias  = "aws-us-east-1"
+}
+
+locals {
+  cdn_s3_bucket_name = "test-bucket"
+  cdn_record_names   = [
+    "test.com",
+    "www.test.com"
+  ]
+}
+
+module "s3_cloudfront_cdn" {
+  source          = "github.com/botre/terraform-recipes/modules/aws/s3-cloudfront-cdn"
+  hosted_zone_id  = aws_route53_zone.hosted_zone.id
+  certificate_arn = module.hosted_zone_certificate.certificate_arn
+  bucket_name     = local.cdn_s3_bucket_name
+  record_aliases  = local.cdn_record_names
+  providers       = {
+    aws.aws-us-east-1 = aws.aws-us-east-1
+  }
+}
+```
+
+Deploy test file to S3:
+
+```bash
+#!/bin/bash
+
+BUCKET_NAME=test-bucket
+
+aws s3 rm s3://$BUCKET_NAME --recursive
+echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3://$BUCKET_NAME/index.html --content-type text/html
+```
+
+Deploy:
+
+```bash
+#!/bin/bash
+
+aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_ID" --delete --acl public-read --region "$REGION" && aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*" --region "$REGION"
+```
+
 ### SES domain
 
 ```hcl
