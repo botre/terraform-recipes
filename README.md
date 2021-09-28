@@ -326,8 +326,8 @@ provider "aws" {
 locals {
   cdn_s3_bucket_name = "test-bucket"
   cdn_record_names   = [
-    "test.com",
-    "www.test.com"
+    "cdn.com",
+    "www.cdn.com"
   ]
 }
 
@@ -343,23 +343,19 @@ module "s3_cloudfront_cdn" {
 }
 ```
 
-Deploy test file to S3:
-
-```bash
-#!/bin/bash
-
-BUCKET_NAME=test-bucket
-
-aws s3 rm s3://$BUCKET_NAME --recursive
-echo "<!DOCTYPE html><html><body>Hello, World!</body></html>" | aws s3 cp - s3://$BUCKET_NAME/index.html --content-type text/html
-```
-
 Deploy:
 
 ```bash
 #!/bin/bash
 
-aws s3 sync $BUILD_DIRECTORY s3://"$S3_BUCKET_ID" --delete --acl public-read --region "$REGION" && aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*" --region "$REGION"
+set -e -x
+
+CONTENT_DIRECTORY=""
+S3_BUCKET_NAME=""
+CLOUDFRONT_DISTRIBUTION_ID=""
+REGION=""
+
+aws s3 sync $CONTENT_DIRECTORY s3://"$S3_BUCKET_NAME" --delete --acl public-read --region "$REGION" && aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*" --region "$REGION"
 ```
 
 ### SES domain
