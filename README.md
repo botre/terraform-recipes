@@ -561,6 +561,7 @@ aws lambda update-alias --function-name "$FUNCTION" --name "$ALIAS" --function-v
 ```hcl
 module "api_gateway_trigger" {
   source        = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
+  api_name      = "api"
   function_name = aws_lambda_function.function.function_name
 }
 ```
@@ -571,6 +572,7 @@ published alias version instead of the $LATEST version.
 ```hcl
 module "api_gateway_trigger" {
   source        = "github.com/botre/terraform-recipes/modules/aws/lambda-api-gateway-trigger"
+  api_name      = "api"
   function_name = aws_lambda_function.function.function_name
   alias_name    = aws_lambda_alias.alias.name
 }

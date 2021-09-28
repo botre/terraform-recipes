@@ -1,9 +1,5 @@
-locals {
-  uri = var.alias_name != "" ? data.aws_lambda_alias.alias[0].invoke_arn : data.aws_lambda_function.function.invoke_arn
-}
-
 resource "aws_api_gateway_rest_api" "gateway_rest_api" {
-  name = "${data.aws_lambda_function.function.function_name}-api"
+  name = var.api_name
 }
 
 resource "aws_api_gateway_method_settings" "gateway_settings" {
@@ -12,7 +8,7 @@ resource "aws_api_gateway_method_settings" "gateway_settings" {
   method_path = "*/*"
   settings {
     metrics_enabled = true
-    logging_level   = "ERROR"
+    logging_level   = var.logging_level
   }
 }
 
@@ -82,7 +78,7 @@ resource "aws_cloudwatch_log_group" "gateway_execution_log_group" {
 }
 
 resource "aws_lambda_permission" "lambda_gateway_permission" {
-  statement_id  = "AllowAPIGatewayInvoke"
+  statement_id  = "AllowAPIGatewayInvoke-${var.api_name}"
   action        = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.function.function_name
   principal     = "apigateway.amazonaws.com"
@@ -91,7 +87,7 @@ resource "aws_lambda_permission" "lambda_gateway_permission" {
 
 resource "aws_lambda_permission" "lambda_gateway_alias_permission" {
   count         = var.alias_name != "" ? 1 : 0
-  statement_id  = "AllowAPIGatewayInvokeAlias"
+  statement_id  = "AllowAPIGatewayInvokeAlias-${var.api_name}"
   action        = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.function.function_name
   qualifier     = data.aws_lambda_alias.alias[0].name
