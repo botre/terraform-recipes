@@ -183,26 +183,18 @@ resource "aws_sns_topic" "alarm_topic" {
   })
 }
 
-resource "null_resource" "alarm_topic_email_subscription" {
-  triggers = {
-    alarm_topic_arn = aws_sns_topic.alarm_topic.arn
-    alarm_emails    = sha1(jsonencode(local.alarm_emails))
-  }
+resource "aws_sns_topic_subscription" "alarm_topic_email_subscription" {
   count    = length(local.alarm_emails)
-  provisioner "local-exec" {
-    command = "aws sns subscribe --topic-arn ${aws_sns_topic.alarm_topic.arn} --protocol email --notification-endpoint ${local.alarm_emails[count.index]} --region ${data.aws_region.current.name} --profile ${local.profile}"
-  }
+  topic_arn = aws_sns_topic.alarm_topic.arn
+  protocol  = "email"
+  endpoint  = local.alarm_emails[count.index]
 }
 
-resource "null_resource" "alarm_topic_sms_subscription" {
-  triggers = {
-    alarm_topic_arn     = aws_sns_topic.alarm_topic.arn
-    alarm_phone_numbers = sha1(jsonencode(local.alarm_phone_numbers))
-  }
+resource "aws_sns_topic_subscription" "alarm_topic_sms_subscription" {
   count    = length(local.alarm_phone_numbers)
-  provisioner "local-exec" {
-    command = "aws sns subscribe --topic-arn ${aws_sns_topic.alarm_topic.arn} --protocol sms --notification-endpoint ${local.alarm_phone_numbers[count.index]} --region ${data.aws_region.current.name} --profile ${local.profile}"
-  }
+  topic_arn = aws_sns_topic.alarm_topic.arn
+  protocol  = "sms"
+  endpoint  = local.alarm_phone_numbers[count.index]
 }
 ```
 
