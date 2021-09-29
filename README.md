@@ -151,53 +151,6 @@ terraform {
 }
 ```
 
-### Alarm topic
-
-```hcl
-locals {
-  profile             = "name-profile",
-  alarm_emails        = [
-    "example@email.com"
-  ]
-  alarm_phone_numbers = ["+00000000000"]
-}
-
-resource "aws_sns_topic" "alarm_topic" {
-  name            = "alarm-topic"
-  delivery_policy = jsonencode({
-    "http" : {
-      "defaultHealthyRetryPolicy" : {
-        "minDelayTarget" : 20,
-        "maxDelayTarget" : 20,
-        "numRetries" : 3,
-        "numMaxDelayRetries" : 0,
-        "numNoDelayRetries" : 0,
-        "numMinDelayRetries" : 0,
-        "backoffFunction" : "linear"
-      },
-      "disableSubscriptionOverrides" : false,
-      "defaultThrottlePolicy" : {
-        "maxReceivesPerSecond" : 1
-      }
-    }
-  })
-}
-
-resource "aws_sns_topic_subscription" "alarm_topic_email_subscription" {
-  count    = length(local.alarm_emails)
-  topic_arn = aws_sns_topic.alarm_topic.arn
-  protocol  = "email"
-  endpoint  = local.alarm_emails[count.index]
-}
-
-resource "aws_sns_topic_subscription" "alarm_topic_sms_subscription" {
-  count    = length(local.alarm_phone_numbers)
-  topic_arn = aws_sns_topic.alarm_topic.arn
-  protocol  = "sms"
-  endpoint  = local.alarm_phone_numbers[count.index]
-}
-```
-
 ### Route53 hosted zone
 
 ```hcl
