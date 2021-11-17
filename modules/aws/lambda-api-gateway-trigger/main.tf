@@ -70,7 +70,6 @@ resource "aws_api_gateway_stage" "gateway_stage" {
   deployment_id      = aws_api_gateway_deployment.gateway_deployment.id
   rest_api_id        = aws_api_gateway_rest_api.gateway_rest_api.id
   stage_name         = var.stage_name
-  cache_cluster_size = "0.5"
 }
 
 resource "aws_cloudwatch_log_group" "gateway_execution_log_group" {
