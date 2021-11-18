@@ -52,7 +52,7 @@ resource "aws_api_gateway_integration" "gateway_root_integration" {
 
 resource "aws_api_gateway_deployment" "gateway_deployment" {
   rest_api_id = aws_api_gateway_rest_api.gateway_rest_api.id
-  triggers    = {
+  triggers = {
     redeployment = sha1(jsonencode([
       local.uri,
       aws_api_gateway_method.gateway_any_method.id,
@@ -67,9 +67,12 @@ resource "aws_api_gateway_deployment" "gateway_deployment" {
 }
 
 resource "aws_api_gateway_stage" "gateway_stage" {
-  deployment_id      = aws_api_gateway_deployment.gateway_deployment.id
-  rest_api_id        = aws_api_gateway_rest_api.gateway_rest_api.id
-  stage_name         = var.stage_name
+  deployment_id         = aws_api_gateway_deployment.gateway_deployment.id
+  rest_api_id           = aws_api_gateway_rest_api.gateway_rest_api.id
+  stage_name            = var.stage_name
+  // See https://github.com/hashicorp/terraform-provider-aws/issues/17661
+  cache_cluster_enabled = false
+  cache_cluster_size    = "0.5"
 }
 
 resource "aws_cloudwatch_log_group" "gateway_execution_log_group" {
