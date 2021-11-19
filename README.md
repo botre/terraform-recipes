@@ -445,7 +445,7 @@ aws ecr get-login-password --region "$REGION" | docker login --username AWS --pa
 
 docker push "$IMAGE_URI"
 
-aws lambda update-function-configuration --function-name "$FUNCTION" --environment "Variables=$ENVIRONMENT_VARIABLES" --region "$REGION"
+aws lambda update-function-configuration --function-name "$FUNCTION" --description "aws:states:opt-out" --environment "Variables=$ENVIRONMENT_VARIABLES" --region "$REGION"
 
 VERSION=$(aws lambda update-function-code --function-name "$FUNCTION" --image-uri "$IMAGE_URI" --publish --region "$REGION" | jq '.Version | tonumber')
 
@@ -482,7 +482,7 @@ ENVIRONMENT_VARIABLES="{$(
   sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/,/g'
 )}"
 
-aws lambda update-function-configuration --function-name "$FUNCTION" --region "$REGION" --environment "Variables=$ENVIRONMENT_VARIABLES"
+aws lambda update-function-configuration --function-name "$FUNCTION" --description "aws:states:opt-out" --region "$REGION" --environment "Variables=$ENVIRONMENT_VARIABLES"
 ```
 
 ```hcl
