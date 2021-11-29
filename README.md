@@ -508,44 +508,6 @@ module "scheduled_trigger" {
 }
 ```
 
-### Lambda log group
-
-```hcl
-resource "aws_cloudwatch_log_group" "lambda_log_group" {
-  name              = "/aws/lambda/${aws_lambda_function.function.function_name}"
-  retention_in_days = 7
-  lifecycle {
-    prevent_destroy = false
-  }
-}
-```
-
-### IAM logging policy
-
-```hcl
-resource "aws_iam_policy" "logging_policy" {
-  name   = "logging-policy"
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        Action : [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Effect : "Allow",
-        Resource : "arn:aws:logs:*:*:*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "logging_policy_attachment" {
-  role       = aws_iam_role.role.id
-  policy_arn = aws_iam_policy.logging_policy.arn
-}
-```
-
 ### IAM SES send policy
 
 ```hcl
